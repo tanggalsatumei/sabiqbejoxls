@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="site-title">Loading...</title>
-  <link id="favicon" rel="icon" href="">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Telur asin & olahan khas Lamongan – CV. Sabiq Bejo." />
+  <title id="site-title">Sabiq Bejo</title>
+  <link id="favicon" rel="icon" href="https://img.icons8.com/emoji/48/egg-emoji.png" type="image/png">
+
+  <!-- ===== CSS (diambil & disesuaikan dari backup sabiq.txt) ===== -->
   <style>
-:root {
+    :root {
       --primary: #000;
       --accent: #ffd700;
       --bg: #fff;
@@ -128,10 +131,17 @@
       .testimonial-card { width:200px; }
       .slide-text h2 { font-size:1.6rem; }
     }
-</style>
+  </style>
+  <!-- ===== end CSS ===== -->
 </head>
 <body>
-<!-- Header / Navbar -->
+
+  <!-- Promo marquee (hidden by default) -->
+  <div id="promo-bar" class="promo-marquee" style="display:none;">
+    <a id="promo-link" href="#products"><span id="promo-text">FLASH SALE SEDANG BERLANGSUNG!</span></a>
+  </div>
+
+  <!-- Header / Navbar -->
   <header>
     <div class="header-bar">
       <div style="display:flex;align-items:center;gap:12px;">
@@ -230,11 +240,11 @@
   <div class="floating-cart" id="floatingCart" title="Keranjang">🛒<span id="cartCount" style="position:relative; left:6px; font-weight:700; font-size:0.9rem;">0</span></div>
 
   <!-- ===== JS: Fetch API + Render ===== -->
-
-<script>
-const API_URL = "https://script.google.com/macros/s/AKfycbw7z-KG3qwpi8-AkrMPGg2ONX_gWwepiN7oKPiAcx6n_fVBjASLZ79IMxsuV99tUisCwg/exec"; // URL Web App dari Apps Script
-const API_TOKEN = "1_sE-EY0hPXT_mQBg7sifRUoDAon6DvQNQZcUsrwnD0A"; // sama dengan di Apps Script
-const TIMEZONE = "Asia/Jakarta"; // format time lokal asumsi
+  <script>
+    /***** konfigurasi - ganti sesuai Web App deployment Anda *****/
+    const API_URL = "https://script.google.com/macros/s/AKfycbw7z-KG3qwpi8-AkrMPGg2ONX_gWwepiN7oKPiAcx6n_fVBjASLZ79IMxsuV99tUisCwg/exec"; // <-- GANTI
+    const API_TOKEN = "1_sE-EY0hPXT_mQBg7sifRUoDAon6DvQNQZcUsrwnD0A"; // <-- GANTI
+    const TIMEZONE = "Asia/Jakarta"; // format time lokal asumsi
 
     // util: aman fetch (menangani HTML error)
     async function safeFetch(url) {
@@ -712,7 +722,6 @@ const TIMEZONE = "Asia/Jakarta"; // format time lokal asumsi
 
     /* init app */
     init();
-</script>
-
+  </script>
 </body>
 </html>
