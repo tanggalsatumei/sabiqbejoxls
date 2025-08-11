@@ -6,19 +6,34 @@
   <title id="site-title">Loading...</title>
   <link id="favicon" rel="icon" href="">
   <style>
-    body { font-family: Arial, sans-serif; margin:0; background:#f5f5f5; }
-    header { background: var(--warna, #ffc107); color: #000; text-align:center; padding: 10px; }
-    .slider img { width:100%; border-radius:8px; }
-    .produk-list { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px; padding:10px; }
-    .card { background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
-    .card img { width:100%; display:block; }
-    .countdown-overlay { position:absolute; bottom:0; left:0; width:100%; background:rgba(255,215,0,0.95); color:#000; font-weight:bold; padding:4px 0; text-align:center; font-size:0.85rem; }
-    .img-wrapper { position:relative; }
-    .price { padding:10px; }
-    .price .old { text-decoration:line-through; color:#888; margin-right:5px; }
-    .galeri, .testimoni { padding:10px; display:grid; gap:15px; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); }
-    .galeri img, .testimoni img { width:100%; border-radius:8px; }
-  </style>
+/* === CSS dari backup sabiq.txt (diringkas) === */
+body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f5f5f5; }
+header { background: var(--warna, #ffc107); color:#000; padding:10px; text-align:center; }
+header h1 { margin:0; font-size:1.2rem; }
+
+/* Slider */
+.slider-container { position:relative; overflow:hidden; max-width:100%; }
+.slider-container img { width:100%; border-radius:10px; display:block; }
+.slider-caption { position:absolute; bottom:20px; left:20px; background:rgba(0,0,0,0.5); color:#fff; padding:10px; border-radius:5px; }
+
+/* Produk */
+.produk-list { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px; padding:10px; }
+.card { background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 2px 5px rgba(0,0,0,0.15); }
+.img-wrapper { position:relative; }
+.img-wrapper img { width:100%; display:block; border-radius:10px; }
+.countdown-overlay { position:absolute; bottom:0; left:0; width:100%; background:rgba(255,215,0,0.95); color:#000; font-weight:bold; padding:4px 0; text-align:center; font-size:0.85rem; border-bottom-left-radius:10px; border-bottom-right-radius:10px; }
+.price { padding:10px; font-size:1rem; }
+.price .old { text-decoration:line-through; color:#888; margin-right:5px; }
+.price .new { font-weight:bold; color:#d32f2f; }
+
+/* Galeri */
+.galeri, .testimoni { padding:10px; display:grid; gap:15px; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); }
+.galeri img, .testimoni img { width:100%; border-radius:10px; }
+
+/* Testimoni */
+.testimoni-item { background:#fff; padding:10px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); text-align:center; }
+.testimoni-item p { margin:5px 0; font-size:0.9rem; }
+</style>
 </head>
 <body>
 
@@ -46,8 +61,9 @@ async function fetchSheet(sheet) {
   const json = await res.json();
   return json.status === "success" ? json.data : [];
 }
-
+  
 async function init() {
+  // Pengaturan
   const pengaturan = await fetchSheet("Pengaturan");
   pengaturan.forEach(p => {
     if (p.key === "site_title") document.getElementById("site-title").textContent = p.value;
@@ -56,16 +72,20 @@ async function init() {
     if (p.key === "textpromo") document.getElementById("promo-text").textContent = p.value;
   });
 
+   // Slider
   const slider = await fetchSheet("Slider");
   document.getElementById("slider").innerHTML = slider.map(s => `
     <div>
       <img src="${s.image_url}" alt="${s.alt}">
-      <h3>${s.judul_slider}</h3>
-      <p>${s.ket_slider}</p>
-      <a href="${s.tombol_link}">${s.tombol_text}</a>
+      <div class="slider-caption">
+        <h3>${s.judul_slider}</h3>
+        <p>${s.ket_slider}</p>
+        <a href="${s.tombol_link}" style="color:#fff;">${s.tombol_text}</a>
+      </div>
     </div>
   `).join("");
 
+  // Produk
   const produk = await fetchSheet("Produk");
   document.getElementById("produk-list").innerHTML = produk.map(p => `
     <div class="card">
@@ -81,16 +101,19 @@ async function init() {
     </div>
   `).join("");
 
+   // Galeri
   const galeri = await fetchSheet("Galeri");
   document.getElementById("galeri").innerHTML = galeri.map(g => `
     <img src="${g.gambar_url}" alt="${g.alt_text}">
   `).join("");
 
+  // Testimoni
   const testimoni = await fetchSheet("Testimoni");
   document.getElementById("testimoni").innerHTML = testimoni.map(t => `
-    <div>
+    <div class="testimoni-item">
       <img src="${t.gambar_url}" alt="${t.nama}">
-      <p><strong>${t.nama}</strong> - ${t.jabatan}</p>
+      <p><strong>${t.nama}</strong></p>
+      <p>${t.jabatan}</p>
     </div>
   `).join("");
 }
