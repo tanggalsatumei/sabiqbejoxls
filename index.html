@@ -19,7 +19,7 @@
   <style>
     :root{
       --primary:#121212; --accent:#ffd700; --bg:#ffffff; --card:#ffffff; --text:#222; --muted:#777; --border:#e9e9e9; --maxw:1200px;
-      --headerTop:0px; /* akan diubah saat promo bar aktif */
+      --headerTop:0px; /* bergeser saat promo bar aktif */
     }
     body.dark{ --primary:#0b0b0b; --bg:#0a0a0a; --card:#111; --text:#eaeaea; --muted:#a1a1a1; --border:#222; }
     *{box-sizing:border-box} html,body{height:100%}
@@ -79,8 +79,11 @@
     main{max-width:var(--maxw);margin:18px auto;padding:0 16px}
     h2.section-title{font-size:1.35rem;margin:0 0 12px 0;color:var(--text)}
 
-    /* products grid */
-    .products-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+    /* products grid — 3 kolom di desktop */
+    .products-grid{display:grid;grid-template-columns:1fr;gap:16px}
+    @media(min-width:600px){ .products-grid{grid-template-columns:repeat(2,1fr)} }
+    @media(min-width:900px){ .products-grid{grid-template-columns:repeat(3,1fr)} }
+
     .card{border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--card);display:flex;flex-direction:column;align-items:center;position:relative;overflow:visible}
     .img-wrapper{position:relative;width:100%;max-width:260px;margin:0 auto}
     .img-wrapper img{width:100%;display:block;aspect-ratio:1/1;object-fit:cover;border-radius:10px;cursor:zoom-in}
@@ -106,10 +109,15 @@
     /* cart & floating controls */
     .controls-float{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:10px;align-items:center;z-index:13000}
     .control-btn{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--card);box-shadow:0 6px 18px rgba(0,0,0,.12);cursor:pointer;border:1px solid var(--border)}
+    .control-btn img{width:28px;height:28px}
     .control-btn.primary{background:var(--accent);color:#000}
     .scroll-top{font-size:20px}
     .floating-cart{position:relative;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--card);cursor:pointer}
     .cart-badge{position:absolute;top:-8px;right:-8px;background:#e53935;color:#fff;font-size:.75rem;padding:5px 7px;border-radius:50%;font-weight:800;display:none}
+
+    /* khusus WA brand button – pakai logo resmi (SVG) */
+    .wa-btn{background:transparent;border:0;box-shadow:none;padding:0}
+    .wa-btn img{width:56px;height:56px}
 
     /* cart panel (harus di atas header) */
     .cart-panel{position:fixed;right:-100%;top:0;height:100%;width:360px;max-width:92%;background:var(--card);box-shadow:-6px 0 24px rgba(0,0,0,.2);z-index:16000;padding:18px;transition:right .25s;overflow:auto;border-left:1px solid var(--border)}
@@ -140,8 +148,7 @@
     #footer-map iframe{width:100%;height:220px;border:0;border-radius:10px}
     @media(min-width:900px){
       .footer-inner{grid-template-columns:1fr 1fr}
-      /* kiri maps, kanan profil */
-      #footer-map{order:1}
+      #footer-map{order:1} /* kiri maps, kanan profil */
     }
 
     /* skeleton */
@@ -181,7 +188,7 @@
       <div style="display:flex;align-items:center;gap:12px">
         <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">☰</button>
         <div class="logo">
-          <img id="site-logo" src="https://img.icons8.com/emoji/48/egg-emoji.png" alt="logo">
+          <img id="site-logo" src="https://img.icons8.com/emoji/48/egg-emoji.png" alt="Logo Toko">
           <div>
             <div id="brand-name">Sabiq Bejo</div>
             <div id="brand-sub" style="font-size:.85rem;color:var(--muted)"></div>
@@ -238,6 +245,8 @@
           <div class="swiper-slide skeleton" style="height:180px"></div>
         </div>
         <div class="swiper-pagination"></div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
       </div>
     </section>
 
@@ -257,7 +266,7 @@
       <h2 class="section-title">Proses Produksi</h2>
       <div class="video-grid">
         <div class="video-wrapper" id="videoWrapper">
-          <iframe src="https://www.youtube.com/embed/B5njr5BoGo8" loading="lazy" allowfullscreen></iframe>
+          <iframe src="https://www.youtube.com/embed/B5njr5BoGo8" loading="lazy" allowfullscreen title="Video Produksi"></iframe>
         </div>
         <aside class="video-side">
           <h3>Kenapa Kami?</h3>
@@ -294,7 +303,10 @@
         <span id="cartBadge" class="cart-badge" style="display:none">0</span>
       </div>
     </div>
-    <a id="waFloat" class="control-btn primary" href="#" target="_blank" rel="noopener" title="WhatsApp">WA</a>
+    <!-- WA official logo -->
+    <a id="waFloat" class="wa-btn" href="#" target="_blank" rel="noopener" title="WhatsApp">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+    </a>
   </div>
 
   <!-- Cart panel -->
@@ -314,7 +326,7 @@
   <!-- Zoom overlay -->
   <div id="zoomOverlay" class="zoom-overlay" aria-hidden="true">
     <button id="zoomClose" class="zoom-close" title="Tutup">✕</button>
-    <img id="zoomImg" class="zoom-img" alt="zoomed">
+    <img id="zoomImg" class="zoom-img" alt="Preview gambar diperbesar">
     <div class="zoom-toolbar">
       <button id="zoomOut">−</button>
       <button id="zoomReset">100%</button>
@@ -339,10 +351,61 @@
   function formatRupiah(v){ if(v==null||v==='') return '-'; const n=Number(String(v).replace(/\D/g,'')); if(isNaN(n)) return v; return n.toLocaleString(LOCALE); }
   function safeParseJSON(t){ try{return JSON.parse(t);}catch(e){return null;} }
   async function safeFetch(url){ const res=await fetch(url,{cache:'no-cache'}); const txt=await res.text(); if(txt.trim().startsWith('<')) throw new Error('API returned HTML'); const j=safeParseJSON(txt); if(!j) throw new Error('Invalid JSON'); return j; }
-  function parseHM(hm){ if(!hm) return null; const p=String(hm).trim().split(':'); if(p.length<2) return null; const h=parseInt(p[0],10), m=parseInt(p[1],10); if(isNaN(h)||isNaN(m)) return null; return {h,m}; }
-  function hmToMinutes(hm){ const p=parseHM(hm); return p ? p.h*60 + p.m : null; }
-  function secToHMS(s){ if(s<=0) return '0j 0m 0dtk'; const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=Math.floor(s%60); return `${h}j ${m}m ${sec}dtk`; }
   function escapeHtml(s){ if(s==null) return ''; return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+  // Time helpers
+  function parseHM(str){
+    if(!str) return null;
+    const m = String(str).trim().match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+    if(!m) return null;
+    let h=+m[1], mi=+m[2], s=+(m[3]||0);
+    if(h>23||mi>59||s>59) return null;
+    return {h, m:mi, s};
+  }
+  function tryParseDateTime(str){
+    if(!str) return null;
+    const s = String(str).trim();
+    let d = new Date(s);
+    if(!isNaN(d.getTime())) return d;
+    // support dd/mm/yyyy[ hh:mm[:ss]] or dd-mm-yyyy
+    const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
+    if(m){
+      let day=+m[1], mon=+m[2]-1, yr=+m[3]; if(yr<100) yr+=2000;
+      let h=+(m[4]||0), mi=+(m[5]||0), se=+(m[6]||0);
+      d = new Date(yr,mon,day,h,mi,se,0);
+      if(!isNaN(d.getTime())) return d;
+    }
+    return null;
+  }
+  // return {active, secondsLeft} based on start & end (time-only or absolute date-time)
+  function getPromoStatus(startStr, endStr, now=new Date()){
+    if(!startStr || !endStr) return {active:false, secondsLeft:0};
+
+    const startDT = tryParseDateTime(startStr);
+    const endDT = tryParseDateTime(endStr);
+
+    if(startDT && endDT){
+      // absolute window
+      const active = now >= startDT && now <= endDT;
+      const secondsLeft = active ? Math.max(0, Math.floor((endDT - now)/1000)) : 0;
+      return {active, secondsLeft};
+    }
+
+    // daily time window (HH:MM)
+    const st = parseHM(startStr), en = parseHM(endStr);
+    if(!st || !en) return {active:false, secondsLeft:0};
+
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const start = new Date(today); start.setHours(st.h, st.m, st.s||0, 0);
+    let end = new Date(today); end.setHours(en.h, en.m, en.s||0, 0);
+
+    // lintas tengah malam
+    if(end <= start) end.setDate(end.getDate()+1);
+
+    let active = now >= start && now <= end;
+    const secondsLeft = active ? Math.max(0, Math.floor((end - now)/1000)) : 0;
+    return {active, secondsLeft};
+  }
 
   // State
   let SETTINGS = {};
@@ -375,35 +438,47 @@
     return m;
   }
 
-  // Normalizers
+  // Normalizers + keys helper
   const getAny = (r, keys=[]) => { for(const k of keys){ if(r[k]!==undefined && r[k]!=='' && r[k]!==null) return r[k]; } return ''; };
 
   function normalizeSlides(rows){
     return (rows||[]).map(r=>({
-      bg: getAny(r,['bg','bg_image','bg image','bg_image_url']),
-      img: getAny(r,['image','image_url','gbr','gbr image','gbr_image','gambar']),
-      alt: getAny(r,['alt','alt_text']),
-      title: getAny(r,['judulslider','title','judul','judul slider','judulslider']),
-      caption: getAny(r,['ketslider','caption','ket']),
-      btn_text: getAny(r,['tombol','button']) || 'Lihat',
-      btn_link: getAny(r,['tombol_link','button_link']) || '#'
+      bg: getAny(r,['bg','bg_image','bg image','bg_image_url','background']),
+      img: getAny(r,['image','image_url','gambar','gbr','gbr image']),
+      alt: getAny(r,['altslider','alt slider','alt_slider','alt','alt_text']),
+      title: getAny(r,['judulslider','judul slider','title','judul']),
+      caption: getAny(r,['ketslider','ket slider','caption','keterangan','ket']),
+      btn_text: getAny(r,['tombol','button','btn_text']) || 'Lihat',
+      btn_link: getAny(r,['tombol_link','button_link','btn_link','link']) || '#'
     }));
   }
+
   function normalizeProducts(rows){
     return (rows||[]).map((r,i)=>({
       id: getAny(r,['id','ID','Id']) || 'p'+i,
-      nama: getAny(r,['nama','name','nama produk','nama_produk']) || 'Produk',
-      gbr: getAny(r,['gbrproduk','gbr','gambar','image','gbr image']),
-      alt: getAny(r,['alt','alt_text']),
-      hargaawal: getAny(r,['hargaawal','harga','price','harga awal']),
-      hargadiskon: getAny(r,['hargadiskon','hargadisc','diskon','harga diskon']),
-      promostart: getAny(r,['promostart','promo_start','promo start']),
-      promoend: getAny(r,['promoend','promo_end','promo end']),
+      nama: getAny(r,[
+        'namaproduk','nama produk','nama_produk','judul produk','judulproduk',
+        'produk','nama','name','productname','product_name'
+      ]) || 'Produk',
+      gbr: getAny(r,['gbrproduk','gambar produk','gambar_produk','gbr','gambar','image','gbr image']),
+      alt: getAny(r,['altproduk','alt_produk','alt produk','alt','alt_text','alt_gambar','alt image']),
+      hargaawal: getAny(r,['hargaawal','harga awal','harga','price']),
+      hargadiskon: getAny(r,['hargadiskon','harga diskon','hargadisc','diskon']),
+      promostart: getAny(r,['promostart','promo_start','promo start','mulai','start']),
+      promoend: getAny(r,['promoend','promo_end','promo end','selesai','end']),
       aktif: String(getAny(r,['aktif','active'],'yes')).toLowerCase() === 'yes'
     }));
   }
-  function normalizeGallery(rows){ return (rows||[]).map(r=>({url:getAny(r,['gambar_url','image','url','gambar']), alt:getAny(r,['alt_text','alt'])})); }
-  function normalizeTestis(rows){ return (rows||[]).map(r=>({nama:getAny(r,['nama','name']), jabatan:getAny(r,['jabatan','role']), gambar:getAny(r,['gambar','image'])})); }
+
+  function normalizeGallery(rows){
+    return (rows||[]).map(r=>({
+      url: getAny(r,['gambar_url','image','url','gambar','link']),
+      alt: getAny(r,['altgaleri','alt_gallery','alt','alt_text'])
+    }));
+  }
+  function normalizeTestis(rows){
+    return (rows||[]).map(r=>({nama:getAny(r,['nama','name']), jabatan:getAny(r,['jabatan','role']), gambar:getAny(r,['gambar','image'])}));
+  }
 
   // Apply settings to UI
   function applySettings(s){
@@ -430,30 +505,30 @@
     if(s.maps){
       const holder = $('#footer-map'); holder.innerHTML = '';
       const iframe = document.createElement('iframe');
-      iframe.loading = 'lazy'; iframe.src = s.maps;
+      iframe.loading = 'lazy'; iframe.src = s.maps; iframe.title = 'Peta Lokasi';
       holder.appendChild(iframe);
       let t = setTimeout(()=> { holder.innerHTML = `<a href="${s.maps}" target="_blank" rel="noopener" style="color:var(--accent)">Buka Peta (klik)</a>` }, 7000);
       iframe.addEventListener('load', ()=> clearTimeout(t), {once:true});
     }
 
     // Video
-    if(s.video_embed) $('#videoWrapper').innerHTML = `<iframe src="${s.video_embed}" frameborder="0" allowfullscreen loading="lazy"></iframe>`;
+    if(s.video_embed) $('#videoWrapper').innerHTML = `<iframe src="${s.video_embed}" frameborder="0" allowfullscreen loading="lazy" title="Video Produksi"></iframe>`;
   }
 
   // Renders
   function renderHero(){
     const container = $('#slidesContainer');
     container.innerHTML = '';
-    if(!SLIDES.length) SLIDES = [{bg:'https://images.unsplash.com/photo-1523986371872-9d3ba2e2f642?auto=format&fit=crop&w=1600&q=60', img:'https://img.icons8.com/emoji/96/egg-emoji.png', title:'Sabiq Bejo', caption:'Telur Asin Lamongan', btn_text:'Pesan', btn_link:'#products'}];
+    if(!SLIDES.length) SLIDES = [{bg:'https://images.unsplash.com/photo-1523986371872-9d3ba2e2f642?auto=format&fit=crop&w=1600&q=60', img:'https://img.icons8.com/emoji/96/egg-emoji.png', title:'Sabiq Bejo', caption:'Telur Asin Lamongan', btn_text:'Pesan', btn_link:'#products', alt:'Telur asin'}];
     SLIDES.forEach(s=>{
       const slide = document.createElement('div'); slide.className='swiper-slide';
       if(s.bg) slide.style.backgroundImage = `url('${s.bg}')`;
       slide.innerHTML = `<div class="slide-content">
-        ${s.img ? `<img src="${s.img}" alt="${escapeHtml(s.alt||'')}" loading="lazy" data-zoom="1">` : ''}
+        ${s.img ? `<img src="${s.img}" alt="${escapeHtml(s.alt||s.title||'Slide')}" loading="lazy" data-zoom="1">` : ''}
         <div class="slide-text">
           <h2>${escapeHtml(s.title||'')}</h2>
           <p>${escapeHtml(s.caption||'')}</p>
-          <a class="cta" href="${s.btn_link||'#'}">${escapeHtml(s.btn_text||'Lihat')}</a>
+          <a class="cta" href="${s.btn_link||'#'}"> ${escapeHtml(s.btn_text||'Lihat')} </a>
         </div>
       </div>`;
       container.appendChild(slide);
@@ -474,9 +549,9 @@
       const promoLabel = document.createElement('div'); promoLabel.className='promo-label'; promoLabel.textContent='PROMO'; card.appendChild(promoLabel);
 
       const iw = document.createElement('div'); iw.className='img-wrapper';
-      const img = document.createElement('img'); img.src = p.gbr || 'https://via.placeholder.com/400x400?text=No+Image'; img.alt = p.alt || p.nama; img.loading='lazy'; img.setAttribute('data-zoom','1');
+      const img = document.createElement('img'); img.src = p.gbr || 'https://via.placeholder.com/400x400?text=No+Image'; img.alt = p.alt || p.nama || 'Produk'; img.loading='lazy'; img.setAttribute('data-zoom','1');
       iw.appendChild(img);
-      const co = document.createElement('div'); co.className='countdown-overlay'; co.style.display='none'; iw.appendChild(co);
+      const co = document.createElement('div'); co.className='countdown-overlay'; co.style.display='none'; co.setAttribute('aria-live','polite'); iw.appendChild(co);
       card.appendChild(iw);
 
       const title = document.createElement('h3'); title.textContent = p.nama; card.appendChild(title);
@@ -500,7 +575,7 @@
     if(!GALLERY.length) GALLERY = [{url:'https://via.placeholder.com/1000x700?text=Gallery', alt:'Galeri'}];
     GALLERY.forEach(it=>{
       const slide = document.createElement('div'); slide.className='swiper-slide gallery-item';
-      slide.innerHTML = `<img src="${it.url||''}" alt="${escapeHtml(it.alt||'')}" loading="lazy" data-zoom="1">`;
+      slide.innerHTML = `<img src="${it.url||''}" alt="${escapeHtml(it.alt||'Galeri')}" loading="lazy" data-zoom="1">`;
       g.appendChild(slide);
     });
   }
@@ -511,7 +586,7 @@
     TESTIS.forEach(it=>{
       const slide = document.createElement('div'); slide.className='swiper-slide';
       slide.innerHTML = `<div class="testimonial-card">
-        <img src="${it.gambar||''}" alt="${escapeHtml(it.nama||'')}" loading="lazy">
+        <img src="${it.gambar||''}" alt="${escapeHtml(it.nama||'Pelanggan')}" loading="lazy">
         <p><strong>${escapeHtml(it.nama||'')}</strong><br><small>${escapeHtml(it.jabatan||'')}</small></p>
       </div>`;
       t.appendChild(slide);
@@ -529,9 +604,17 @@
 
     if(gallerySwiper) gallerySwiper.destroy(true,true);
     gallerySwiper = new Swiper('#gallerySwiper', {
-      slidesPerView:1.2,spaceBetween:12,loop:true,
-      breakpoints:{640:{slidesPerView:2},900:{slidesPerView:3}},
+      loop:true,
+      slidesPerView:1.2,
+      spaceBetween:12,
+      breakpoints:{
+        480:{slidesPerView:2},
+        640:{slidesPerView:3},
+        900:{slidesPerView:4},
+        1200:{slidesPerView:5} /* desktop: maks 5 terlihat */
+      },
       pagination:{el:'#gallerySwiper .swiper-pagination',clickable:true},
+      navigation:{nextEl:'#gallerySwiper .swiper-button-next',prevEl:'#gallerySwiper .swiper-button-prev'},
       grabCursor:true
     });
 
@@ -548,7 +631,8 @@
   function updateCountdowns(){
     const cards = $$('#productsGrid .card');
     let anyPromo=false;
-    const now = new Date(); const nowMin = now.getHours()*60 + now.getMinutes();
+
+    const now = new Date();
 
     cards.forEach(card=>{
       const co = $('.countdown-overlay', card);
@@ -556,45 +640,17 @@
       const oldEl = $('.old', card);
       const newEl = $('.new', card);
 
-      const start = card.dataset.start || '';
-      const end = card.dataset.end || '';
+      const start = card.dataset.start?.toString().trim() || '';
+      const end = card.dataset.end?.toString().trim() || '';
       const hargaAwal = card.dataset.hargaawal || '';
       const hargaDiskon = card.dataset.hargadiskon || '';
 
-      if(!start || !end){
-        if(co) co.style.display='none';
-        if(promoLabel) promoLabel.style.display='none';
-        if(oldEl) oldEl.style.display='none';
-        if(newEl) newEl.textContent = 'Rp ' + formatRupiah(hargaAwal);
-        return;
-      }
+      // status promo
+      const {active, secondsLeft} = getPromoStatus(start, end, now);
 
-      const sMin = hmToMinutes(start);
-      const eMin = hmToMinutes(end);
-      if(sMin==null || eMin==null){ if(co) co.style.display='none'; if(promoLabel) promoLabel.style.display='none'; return; }
-
-      let active=false, secondsLeft=0;
-      if(eMin < sMin){
-        // melewati tengah malam
-        if(nowMin >= sMin || nowMin <= eMin){
-          active=true;
-          const endDate = new Date();
-          if(nowMin >= sMin) endDate.setDate(endDate.getDate()+1);
-          const ep = parseHM(end); endDate.setHours(ep.h, ep.m, 0, 0);
-          secondsLeft = Math.floor((endDate - new Date())/1000);
-        }
-      } else {
-        // di hari yang sama
-        if(nowMin >= sMin && nowMin <= eMin){
-          active=true;
-          const endDate = new Date(); const ep = parseHM(end); endDate.setHours(ep.h, ep.m, 0, 0);
-          secondsLeft = Math.floor((endDate - new Date())/1000);
-        }
-      }
-
-      if(active){
+      if(active && secondsLeft>0){
         anyPromo=true;
-        if(co) { co.textContent = secToHMS(secondsLeft); co.style.display='block'; }
+        if(co) { co.textContent = formatHMS(secondsLeft); co.style.display='block'; }
         if(promoLabel) promoLabel.style.display='inline-block';
         if(oldEl) oldEl.style.display = (hargaDiskon ? 'inline-block' : 'none');
         if(newEl) newEl.textContent = 'Rp ' + formatRupiah(hargaDiskon||hargaAwal);
@@ -611,6 +667,15 @@
     promoBar.style.display = anyPromo ? 'block' : 'none';
     document.documentElement.style.setProperty('--headerTop', anyPromo ? '36px' : '0px');
   }
+
+  function formatHMS(total){
+    const s = Math.max(0, Math.floor(total));
+    const h = Math.floor(s/3600);
+    const m = Math.floor((s%3600)/60);
+    const sec = s%60;
+    return `${pad(h)}j ${pad(m)}m ${pad(sec)}dtk`;
+  }
+  const pad = n => String(n).padStart(2,'0');
 
   // CART
   function addToCartFromCard(card){
@@ -708,7 +773,7 @@
     document.body.addEventListener('click', (e)=>{
       const img = e.target.closest('img[data-zoom]');
       if(!img) return;
-      openZoom(img.src, img.alt||'');
+      openZoom(img.src, img.alt||'Gambar');
     });
 
     // zoom controls
