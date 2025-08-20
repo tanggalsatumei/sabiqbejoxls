@@ -466,21 +466,39 @@
   }
 
   function normalizeProducts(rows){
-    return (rows||[]).map((r,i)=>({
+  return (rows||[]).map((r,i)=>{
+    const tglStart = getAny(r,['tglpromostart','tgl_start','tanggalmulai']) || '';
+    const tglEnd   = getAny(r,['tglpromoend','tgl_end','tanggalselesai']) || '';
+    const jamStart = getAny(r,['jampromostart','jam_start','jammulai']) || '';
+    const jamEnd   = getAny(r,['jampromoend','jam_end','jamselesai']) || '';
+
+    // gabungkan tanggal + jam (kalau ada tanggal), kalau tidak ada → jam-only
+    let promostart='', promoend='';
+    if(tglStart){
+      promostart = `${tglStart} ${jamStart||'00:00'}`;
+    } else {
+      promostart = jamStart;
+    }
+    if(tglEnd){
+      promoend = `${tglEnd} ${jamEnd||'23:59'}`;
+    } else {
+      promoend = jamEnd;
+    }
+
+    return {
       id: getAny(r,['id','ID','Id']) || 'p'+i,
-      nama: getAny(r,[
-        'namaproduk','nama produk','nama_produk','judul produk','judulproduk',
-        'produk','nama','name','productname','product_name'
-      ]) || 'Produk',
+      nama: getAny(r,['namaproduk','nama produk','nama_produk','judul produk','judulproduk','produk','nama','name','productname','product_name']) || 'Produk',
       gbr: getAny(r,['gbrproduk','gambar produk','gambar_produk','gbr','gambar','image','gbr image']),
       alt: getAny(r,['altproduk','alt_produk','alt produk','alt','alt_text','alt_gambar','alt image']),
       hargaawal: getAny(r,['hargaawal','harga awal','harga','price']),
       hargadiskon: getAny(r,['hargadiskon','harga diskon','hargadisc','diskon']),
-      promostart: getAny(r,['promostart','promo_start','promo start','mulai','start']),
-      promoend: getAny(r,['promoend','promo_end','promo end','selesai','end']),
+      promostart,
+      promoend,
       aktif: (String(getAny(r,['aktif','active'])).toLowerCase() || 'yes') === 'yes'
-    }));
-  }
+    };
+  });
+}
+
 
   function normalizeGallery(rows){
     return (rows||[]).map(r=>({
