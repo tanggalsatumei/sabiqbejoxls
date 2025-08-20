@@ -382,20 +382,42 @@
   //  - time-only HH:MM (interpreted as day-time in Asia/Jakarta)
   // If end is omitted, uses 23:59:59; if start omitted uses 00:00:00.
   function getPromoStatus(startStr, endStr){
-    const clean = v => (v||'').toString().replace(/[–—]/g,'-').trim();
-    const sStr = clean(startStr), eStr = clean(endStr);
-    if(!sStr && !eStr) return {active:false, secondsLeft:0};
+  const clean = v => (v||'').toString().replace(/[–—]/g,'-').trim();
+  const sStr = clean(startStr), eStr = clean(endStr);
+  if(!sStr && !eStr) return {active:false, secondsLeft:0};
 
-    // if both parse as absolute datetimes and at least one contains a date token, treat as absolute
-    const sDT = tryParseDateTime(sStr);
-    const eDT = tryParseDateTime(eStr);
-    const containsDate = (t) => /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/.test(String(t));
-    if(sDT && eDT && (containsDate(sStr) || containsDate(eStr))){
-      const nowMs = Date.now();
-      const active = nowMs >= sDT.getTime() && nowMs <= eDT.getTime();
-      const secondsLeft = active ? Math.max(0, Math.floor((eDT.getTime() - nowMs)/1000)) : 0;
-      return {active, secondsLeft};
-    }
+  const sDT = tryParseDateTime(sStr);
+  const eDT = tryParseDateTime(eStr);
+  const containsDate = (t) => /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/.test(String(t));
+
+  // --- Absolute datetime (punya tanggal) ---
+  if((sDT || eDT) && (containsDate(sStr) || containsDate(eStr))){
+    const nowMs = Date.now();
+    let startMs = sDT ? sDT.getTime() : nowMs;
+    let endMs   = eDT ? eDT.getTime() : (sDT ? sDT.getTime()+24*3600*1000 : nowMs);
+    const active = nowMs >= startMs && nowMs <= endMs;
+    const secondsLeft = active ? Math.max(0, Math.floor((endMs - nowMs)/1000)) : 0;
+    return {active, secondsLeft};
+  }
+
+  // --- Jam-only (HH:MM) ---
+  const st = parseHM(sStr || '00:00');
+  const en = parseHM(eStr || '23:59:59');
+  if(!st || !en) return {active:false, secondsLeft:0};
+
+  const baseParts = getTZPartsNow(TZONE);
+  const startMs = tzWallClockToEpochMs(TZONE, baseParts.year, baseParts.month, baseParts.day, st.h, st.m, st.s||0);
+  let endMs = tzWallClockToEpochMs(TZONE, baseParts.year, baseParts.month, baseParts.day, en.h, en.m, en.s||0);
+
+  // --- jika end <= start → dianggap lewat tengah malam ---
+  if(endMs <= startMs) endMs += 24*3600*1000;
+
+  const nowMs = Date.now();
+  const active = nowMs >= startMs && nowMs <= endMs;
+  const secondsLeft = active ? Math.max(0, Math.floor((endMs - nowMs)/1000)) : 0;
+  return {active, secondsLeft};
+}
+
 
     // Otherwise treat as time-only (HH:MM) in TZONE (Asia/Jakarta)
     const st = parseHM(sStr || '00:00');
@@ -472,17 +494,21 @@
     const jamStart = getAny(r,['jampromostart','jam_start','jammulai']) || '';
     const jamEnd   = getAny(r,['jampromoend','jam_end','jamselesai']) || '';
 
-    // gabungkan tanggal + jam (kalau ada tanggal), kalau tidak ada → jam-only
     let promostart='', promoend='';
-    if(tglStart){
+
+    // --- Validasi default ---
+    if(tglStart && !tglEnd) {
+      // kalau hanya start date → end = start date
       promostart = `${tglStart} ${jamStart||'00:00'}`;
+      promoend   = `${tglStart} ${jamEnd||'23:59'}`;
+    } else if(!tglStart && !tglEnd) {
+      // kalau hanya jam → jam-only
+      promostart = jamStart || '';
+      promoend   = jamEnd || '';
     } else {
-      promostart = jamStart;
-    }
-    if(tglEnd){
-      promoend = `${tglEnd} ${jamEnd||'23:59'}`;
-    } else {
-      promoend = jamEnd;
+      // kalau start & end date ada
+      promostart = `${tglStart||''} ${jamStart||'00:00'}`.trim();
+      promoend   = `${tglEnd||tglStart||''} ${jamEnd||'23:59'}`.trim();
     }
 
     return {
@@ -498,6 +524,7 @@
     };
   });
 }
+
 
 
   function normalizeGallery(rows){
