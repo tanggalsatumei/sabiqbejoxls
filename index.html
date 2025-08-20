@@ -855,55 +855,37 @@
   function setZoom(v){ scale = Math.max(1, Math.min(6, v)); $('#zoomImg').style.setProperty('--scale', scale); }
   function setTranslate(x,y){ tx = x; ty = y; $('#zoomImg').style.setProperty('--tx', tx+'px'); $('#zoomImg').style.setProperty('--ty', y+'px'); }
 
-  /* ====== INIT ====== */
-  (async function init(){
+  // Init
+  async function init(){
     showLoading(true);
-    if(localStorage.getItem('dark')==='1') document.body.classList.add('dark');
-
-    try{
-      const settingsRows = await fetchSheet('Pengaturan').catch(()=>[]);
-      SETTINGS = rowsToMap(settingsRows);
-      applySettings(SETTINGS);
-
-      const [slidesRows, productsRows, galleryRows, testiRows] = await Promise.all([
-        fetchSheet('Slider').catch(()=>[]),
-        fetchSheet('Produk').catch(()=>[]),
-        fetchSheet('Galeri').catch(()=>[]),
-        fetchSheet('Testimoni').catch(()=>[])
-      ]);
-
-      SLIDES = normalizeSlides(slidesRows);
-      PRODUCTS = normalizeProducts(productsRows);
-      GALLERY = normalizeGallery(galleryRows);
-      TESTIS = normalizeTestis(testiRows);
+    try {
+      SETTINGS = rowsToMap(await fetchSheet("Setting"));
+      SLIDES   = normalizeSlides(await fetchSheet("Slide"));
+      PRODUCTS = normalizeProducts(await fetchSheet("Produk"));
+      GALLERY  = normalizeGallery(await fetchSheet("Galeri"));
+      TESTIS   = normalizeTestis(await fetchSheet("Testimoni"));
 
       renderHero();
       renderProducts();
       renderGallery();
-      renderTesti();
-
-      initSwipers();
-      setupUI();
-
-      // attach reveal observation to new elements
-      setTimeout(()=> {
-        $$('#productsGrid .card').forEach(el=> revealObserver.observe(el));
-        $$('#galleryGrid img').forEach(img=> revealObserver.observe(img));
-        $$('#testiGrid img').forEach(img=> revealObserver.observe(img));
-        $$('#slidesContainer img').forEach(img=> revealObserver.observe(img));
-      }, 50);
-
-      // Countdown loop (fixed)
+      renderTestis();
+      updateCartUI();
       updateCountdowns();
       setInterval(updateCountdowns, 1000);
 
-    } catch(err){
-      console.error('Init error', err);
-      alert('Gagal muat data. Periksa API_URL/API_TOKEN & Apps Script deployment.');
-    } finally {
-      showLoading(false);
+      // judul & favicon
+      if(SETTINGS['judul']) document.title = SETTINGS['judul'];
+      if(SETTINGS['favicon']) {
+        document.getElementById("favicon").href = SETTINGS['favicon'];
+      }
+    } catch(err) {
+      console.error(err);
+      alert("Gagal memuat data: "+err.message);
     }
-  })();
+    showLoading(false);
+  }
+
+  window.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
 </html>
