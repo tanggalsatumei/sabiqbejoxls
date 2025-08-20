@@ -343,14 +343,17 @@
 
   function normalizeHM(s){ return String(s||'').trim().replace(/[.]/g,':'); }
   function parseHM(str){
-    if(!str) return null;
-    const z = normalizeHM(str);
-    const m = z.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
-    if(!m) return null;
-    let h=+m[1], mi=+m[2], s=+(m[3]||0);
-    if(h>23||mi>59||s>59) return null;
-    return {h, m:mi, s};
-  }
+  if(!str) return null;
+  const parts = str.split(':').map(p => parseInt(p,10));
+  if(parts.length < 2 || isNaN(parts[0]) || isNaN(parts[1])) return null;
+
+  return {
+    h: parts[0],
+    m: parts[1],
+    s: parts.length >= 3 && !isNaN(parts[2]) ? parts[2] : 0
+  };
+}
+
 
   function tryParseDateTime(str){
     if(!str) return null;
