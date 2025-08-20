@@ -7,6 +7,7 @@
   <meta id="meta-desc" name="description" content="Telur asin & olahan khas Lamongan – CV. Sabiq Bejo.">
   <link id="favicon" rel="icon" href="https://img.icons8.com/emoji/48/egg-emoji.png" type="image/png">
 
+  <!-- Preconnects -->
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://script.google.com" crossorigin>
   <link rel="preconnect" href="https://lh3.googleusercontent.com" crossorigin>
@@ -76,7 +77,8 @@
 
     .card{border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--card);display:flex;flex-direction:column;align-items:center;position:relative;overflow:visible}
     .img-wrapper{position:relative;width:100%;max-width:260px;margin:0 auto}
-    .img-wrapper img{width:100%;display:block;aspect-ratio:1/1;object-fit:cover;border-radius:10px;cursor:zoom-in}
+    .img-wrapper img{width:100%;display:block;aspect-ratio:1/1;object-fit:cover;border-radius:10px;cursor:zoom-in;opacity:0;transform:translateY(8px);transition:opacity .45s ease, transform .45s ease}
+    .img-wrapper img.show{opacity:1;transform:none}
     .promo-label{position:absolute;top:10px;left:10px;background:var(--accent);color:#000;padding:6px 8px;font-weight:800;border-radius:8px;display:none;z-index:8;font-size:.85rem}
     .countdown-overlay{position:absolute;bottom:0;left:0;width:100%;background:rgba(255,215,0,0.98);color:#000;font-weight:800;padding:6px 6px;text-align:center;border-bottom-left-radius:10px;border-bottom-right-radius:10px;z-index:9;display:none}
     .card h3{margin:10px 0 4px 0;text-align:center}
@@ -86,9 +88,11 @@
 
     /* GALLERY & TESTI */
     .gallery-section .swiper,.testi-section .swiper{padding:8px 0}
-    .gallery-item img{height:180px;object-fit:cover;border-radius:10px;cursor:zoom-in}
+    .gallery-item img{height:180px;object-fit:cover;border-radius:10px;cursor:zoom-in;opacity:0;transform:translateY(8px);transition:opacity .45s ease, transform .45s ease}
+    .gallery-item img.show{opacity:1;transform:none}
     .testimonial-card{background:var(--card);padding:12px;border-radius:12px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.06)}
-    .testimonial-card img{width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:8px}
+    .testimonial-card img{width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:8px;cursor:zoom-in;opacity:0;transform:translateY(8px);transition:opacity .45s ease, transform .45s ease}
+    .testimonial-card img.show{opacity:1;transform:none}
 
     /* VIDEO GRID */
     .video-grid{display:grid;grid-template-columns:1fr;gap:16px}
@@ -101,7 +105,7 @@
     .control-btn{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--card);box-shadow:0 6px 18px rgba(0,0,0,.12);cursor:pointer;border:1px solid var(--border);transition:opacity .25s, transform .25s}
     .control-btn img{width:28px;height:28px}
     .control-btn.primary{background:var(--accent);color:#000}
-    .scroll-top{font-size:20px; opacity:0; visibility:hidden; transform:translateY(8px)}
+    .scroll-top{font-size:20px; opacity:0; visibility:hidden; transform:translateY(8px); transition:opacity .25s, transform .25s}
     .scroll-top.visible{opacity:1; visibility:visible; transform:none}
     .floating-cart{position:relative;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--card);cursor:pointer}
     .cart-badge{position:absolute;top:-8px;right:-8px;background:#e53935;color:#fff;font-size:.75rem;padding:5px 7px;border-radius:50%;font-weight:800;display:none}
@@ -142,12 +146,9 @@
       #footer-map{order:1}
     }
 
-    /* SKELETON & REVEAL */
+    /* SKELETON */
     .skeleton{background:linear-gradient(90deg,#eee,#f7f7f7,#eee);background-size:200% 100%;animation:shimmer 1.2s linear infinite;border-radius:10px}
     @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-    .reveal{opacity:0; transform:translateY(8px); transition:opacity .45s ease, transform .45s ease}
-    .reveal.show{opacity:1; transform:none}
-
     @media(max-width:900px){.slide-content{flex-direction:column;text-align:center}.slide-content img{width:170px}.menu-toggle{display:block}nav ul{display:none}}
   </style>
 </head>
@@ -333,6 +334,7 @@
   const API_URL = "https://script.google.com/macros/s/AKfycbw7z-KG3qwpi8-AkrMPGg2ONX_gWwepiN7oKPiAcx6n_fVBjASLZ79IMxsuV99tUisCwg/exec";
   const API_TOKEN = "1_sE-EY0hPXT_mQBg7sifRUoDAon6DvQNQZcUsrwnD0A";
   const LOCALE = "id-ID";
+  const TZONE = 'Asia/Jakarta'; // gunakan zona Indonesia untuk time-only
   /* ========================= */
 
   const $ = (s, ctx=document) => ctx.querySelector(s);
@@ -344,9 +346,14 @@
   async function safeFetch(url){ const res=await fetch(url,{cache:'no-cache'}); const txt=await res.text(); if(txt.trim().startsWith('<')) throw new Error('API returned HTML'); const j=safeParseJSON(txt); if(!j) throw new Error('Invalid JSON'); return j; }
   function escapeHtml(s){ if(s==null) return ''; return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
-  /* ===== Time parsing (robust) ===== */
-  const TZ_TOKENS = /(WIB|WITA|WIT|UTC[ ]*[+-]\d+|GMT[ ]*[+-]\d+)/ig;
-  function normalizeHM(s){ return String(s).trim().replace(/[.]/g,':'); } // support "07.30"
+  /* ===== Time helpers (use Asia/Jakarta for time-only) ===== */
+  // get current Date in specific timezone as local date object representing that timezone
+  function nowInTZ(tz = TZONE){
+    // create a date string in locale of that timezone, then parse it as local
+    const parts = new Date().toLocaleString('en-US', {timeZone: tz});
+    return new Date(parts);
+  }
+  function normalizeHM(s){ return String(s||'').trim().replace(/[.]/g,':'); } // support "07.30"
   function parseHM(str){
     if(!str) return null;
     const z = normalizeHM(str);
@@ -356,49 +363,59 @@
     if(h>23||mi>59||s>59) return null;
     return {h, m:mi, s};
   }
-  function stripTZ(s){ return String(s).replace(TZ_TOKENS,'').trim(); }
   function tryParseDateTime(str){
     if(!str) return null;
-    const s = stripTZ(str);
-    let d = new Date(s);
+    // trim timezone tokens like WIB/WITA/WIT
+    const s = String(str).replace(/(WIB|WITA|WIT|UTC[+-]?\d+|GMT[+-]?\d+)/ig,'').trim();
+    // try Date parse
+    const d = new Date(s);
     if(!isNaN(d.getTime())) return d;
-    const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})(?:[ T](\d{1,2})[.:](\d{2})(?::(\d{2}))?)?$/);
+    // try dd/mm/yyyy hh:mm
+    const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})(?:[ T](\d{1,2})[:.](\d{2})(?::(\d{2}))?)?$/);
     if(m){
       let day=+m[1], mon=+m[2]-1, yr=+m[3]; if(yr<100) yr+=2000;
       let h=+(m[4]||0), mi=+(m[5]||0), se=+(m[6]||0);
-      d = new Date(yr,mon,day,h,mi,se,0);
-      if(!isNaN(d.getTime())) return d;
+      return new Date(yr, mon, day, h, mi, se, 0);
     }
     return null;
   }
-  function getPromoStatus(startStr, endStr, now=new Date()){
+
+  // get promo status; time-only strings interpreted in TZONE (Asia/Jakarta)
+  function getPromoStatus(startStr, endStr){
+    const now = nowInTZ(TZONE);
     const clean = v => (v||'').toString().replace(/[–—]/g,'-').trim();
     let sStr = clean(startStr), eStr = clean(endStr);
     if(!sStr && !eStr) return {active:false, secondsLeft:0};
-    if(sStr && !eStr) eStr = '23:59:59';
-    if(!sStr && eStr) sStr = '00:00:00';
 
-    const startDT = tryParseDateTime(sStr);
-    const endDT = tryParseDateTime(eStr);
-
-    if(startDT && endDT){
-      const active = now >= startDT && now <= endDT;
-      const secondsLeft = active ? Math.max(0, Math.floor((endDT - now)/1000)) : 0;
+    // try absolute datetimes first
+    const sDT = tryParseDateTime(sStr);
+    const eDT = tryParseDateTime(eStr);
+    if(sDT && eDT){
+      // treat as absolute (in local runtime tz) — assume sheet times are in local Jakarta if date provided without TZ
+      const nowUtc = new Date(); // compare using actual now
+      const active = nowUtc >= sDT && nowUtc <= eDT;
+      const secondsLeft = active ? Math.max(0, Math.floor((eDT - nowUtc)/1000)) : 0;
       return {active, secondsLeft};
     }
 
-    // daily window
-    const st = parseHM(sStr), en = parseHM(eStr);
+    // otherwise handle as time-only (HH:MM). Interpret those times as in TZONE.
+    const st = parseHM(sStr || '00:00');
+    const en = parseHM(eStr || '23:59:59');
     if(!st || !en) return {active:false, secondsLeft:0};
 
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const start = new Date(today); start.setHours(st.h, st.m, st.s||0, 0);
-    let end = new Date(today); end.setHours(en.h, en.m, en.s||0, 0);
-    if(end <= start) end.setDate(end.getDate()+1);
+    // build start and end Date objects in the Jakarta timezone by using nowInTZ to get date parts
+    const base = nowInTZ(TZONE);
+    const start = new Date(base.getFullYear(), base.getMonth(), base.getDate(), st.h, st.m, st.s||0, 0);
+    let end = new Date(base.getFullYear(), base.getMonth(), base.getDate(), en.h, en.m, en.s||0, 0);
+    // if end <= start -> crosses midnight -> add 1 day to end
+    if(end <= start) end.setDate(end.getDate() + 1);
+
+    // compute secondsLeft by comparing to now expressed in TZONE (we used now variable)
     const active = now >= start && now <= end;
     const secondsLeft = active ? Math.max(0, Math.floor((end - now)/1000)) : 0;
     return {active, secondsLeft};
   }
+
   function formatHMS(total){
     const s = Math.max(0, Math.floor(total));
     const h = Math.floor(s/3600);
@@ -407,13 +424,12 @@
     return `${pad(h)}j ${pad(m)}m ${pad(sec)}dtk`;
   }
 
-  /* ====== STATE ====== */
+  /* ====== State & fetch ====== */
   let SETTINGS = {};
   let PRODUCTS = [], SLIDES = [], GALLERY = [], TESTIS = [];
   let cart = [];
   let heroSwiper, gallerySwiper, testiSwiper;
 
-  /* ====== Fetch ====== */
   async function fetchSheet(name){
     const url = `${API_URL}?sheet=${encodeURIComponent(name)}&token=${encodeURIComponent(API_TOKEN)}`;
     const j = await safeFetch(url);
@@ -421,6 +437,7 @@
     if(Array.isArray(j)) return j;
     return [];
   }
+
   function rowsToMap(rows){
     const m={};
     (rows||[]).forEach(r=>{
@@ -435,6 +452,7 @@
     });
     return m;
   }
+
   const getAny = (r, keys=[]) => { for(const k of keys){ if(r[k]!==undefined && r[k]!=='' && r[k]!==null) return r[k]; } return ''; };
 
   function normalizeSlides(rows){
@@ -443,11 +461,12 @@
       img: getAny(r,['image','image_url','gambar','gbr','gbr image']),
       alt: getAny(r,['altslider','alt slider','alt_slider','alt','alt_text']),
       title: getAny(r,['judulslider','judul slider','title','judul']),
-      caption: getAny(r,['ketslider','ket slider','caption','keterangan','ket','keterangan slider','deskripsi','description','desc']),
+      caption: getAny(r,['ket_slider','ketslider','ket slider','caption','keterangan','ket','keterangan slider','deskripsi','description','desc']),
       btn_text: getAny(r,['tombol','button','btn_text']) || 'Lihat',
       btn_link: getAny(r,['tombol_link','button_link','btn_link','link']) || '#'
     }));
   }
+
   function normalizeProducts(rows){
     return (rows||[]).map((r,i)=>({
       id: getAny(r,['id','ID','Id']) || 'p'+i,
@@ -464,23 +483,24 @@
       aktif: (String(getAny(r,['aktif','active'])).toLowerCase() || 'yes') === 'yes'
     }));
   }
+
   function normalizeGallery(rows){
     return (rows||[]).map(r=>({
       url: getAny(r,['gambar_url','image','url','gambar','link']),
       alt: getAny(r,['altgaleri','alt_gallery','alt','alt_text'])
     }));
   }
+
   function normalizeTestis(rows){
     return (rows||[]).map(r=>({
       nama:getAny(r,['nama','name']),
       jabatan:getAny(r,['jabatan','role']),
-      // FIX: dukung gambar_url
-      gambar:getAny(r,['gambar_url','gambar','image']),
+      gambar:getAny(r,['gambar_url','gambar','image']), // prefer gambar_url
       alt:getAny(r,['alt','alt_text','alt_gambar']) || getAny(r,['nama','name'])
     }));
   }
 
-  /* ====== Apply Settings ====== */
+  /* ====== Apply settings ====== */
   function applySettings(s){
     if(!s) return;
     SETTINGS = s;
@@ -523,7 +543,7 @@
     SLIDES.forEach(s=>{
       const slide = document.createElement('div'); slide.className='swiper-slide';
       if(s.bg) slide.style.backgroundImage = `url('${s.bg}')`;
-      slide.innerHTML = `<div class="slide-content reveal" data-reveal>
+      slide.innerHTML = `<div class="slide-content">
         ${s.img ? `<img src="${s.img}" alt="${escapeHtml(s.alt||s.title||'Slide')}" loading="lazy" decoding="async" data-zoom="1">` : ''}
         <div class="slide-text">
           <h2>${escapeHtml(s.title||'')}</h2>
@@ -539,7 +559,7 @@
     const grid = $('#productsGrid'); grid.innerHTML = '';
     if(!PRODUCTS.length){ grid.innerHTML = '<p>Tidak ada produk</p>'; return; }
     PRODUCTS.forEach(p=>{
-      const card = document.createElement('div'); card.className='card reveal'; card.setAttribute('data-reveal',''); if(!p.aktif) card.style.opacity='.6';
+      const card = document.createElement('div'); card.className='card'; if(!p.aktif) card.style.opacity='.6';
       card.dataset.id = p.id || '';
       card.dataset.start = p.promostart || '';
       card.dataset.end = p.promoend || '';
@@ -552,7 +572,7 @@
       const img = document.createElement('img');
       img.src = p.gbr || 'https://via.placeholder.com/400x400?text=No+Image';
       img.alt = p.alt || p.nama || 'Produk';
-      img.loading='lazy'; img.decoding='async'; img.setAttribute('data-zoom','1'); img.setAttribute('data-reveal','');
+      img.loading='lazy'; img.decoding='async'; img.setAttribute('data-zoom','1');
       iw.appendChild(img);
 
       const co = document.createElement('div'); co.className='countdown-overlay'; co.style.display='none'; co.setAttribute('aria-live','polite'); iw.appendChild(co);
@@ -579,7 +599,7 @@
     if(!GALLERY.length) GALLERY = [{url:'https://via.placeholder.com/1000x700?text=Gallery', alt:'Galeri'}];
     GALLERY.forEach(it=>{
       const slide = document.createElement('div'); slide.className='swiper-slide gallery-item';
-      slide.innerHTML = `<img src="${it.url||''}" alt="${escapeHtml(it.alt||'Galeri')}" loading="lazy" decoding="async" data-zoom="1" data-reveal>`;
+      slide.innerHTML = `<img src="${it.url||''}" alt="${escapeHtml(it.alt||'Galeri')}" loading="lazy" decoding="async" data-zoom="1">`;
       g.appendChild(slide);
     });
   }
@@ -589,8 +609,8 @@
     if(!TESTIS.length) TESTIS = [{nama:'Budi', jabatan:'Pelanggan', gambar:'https://via.placeholder.com/600x400?text=User', alt:'Testimoni'}];
     TESTIS.forEach(it=>{
       const slide = document.createElement('div'); slide.className='swiper-slide';
-      slide.innerHTML = `<div class="testimonial-card reveal" data-reveal>
-        <img src="${it.gambar||''}" alt="${escapeHtml(it.alt||it.nama||'Pelanggan')}" loading="lazy" decoding="async">
+      slide.innerHTML = `<div class="testimonial-card">
+        <img src="${it.gambar||''}" alt="${escapeHtml(it.alt||it.nama||'Pelanggan')}" loading="lazy" decoding="async" data-zoom="1">
         <p><strong>${escapeHtml(it.nama||'')}</strong><br><small>${escapeHtml(it.jabatan||'')}</small></p>
       </div>`;
       t.appendChild(slide);
@@ -616,7 +636,7 @@
         480:{slidesPerView:2},
         640:{slidesPerView:3},
         900:{slidesPerView:4},
-        1200:{slidesPerView:5} /* desktop: maks 5 terlihat */
+        1200:{slidesPerView:5}
       },
       pagination:{el:'#gallerySwiper .swiper-pagination',clickable:true},
       navigation:{nextEl:'#gallerySwiper .swiper-button-next',prevEl:'#gallerySwiper .swiper-button-prev'},
@@ -636,7 +656,6 @@
   function updateCountdowns(){
     const cards = $$('#productsGrid .card');
     let anyPromo=false;
-    const now = new Date();
 
     cards.forEach(card=>{
       const co = $('.countdown-overlay', card);
@@ -649,7 +668,7 @@
       const hargaAwal = card.dataset.hargaawal || '';
       const hargaDiskon = card.dataset.hargadiskon || '';
 
-      const {active, secondsLeft} = getPromoStatus(start, end, now);
+      const {active, secondsLeft} = getPromoStatus(start, end);
 
       if(active && secondsLeft>0){
         anyPromo=true;
@@ -768,7 +787,7 @@
     checkTopBtn();
     topBtn.addEventListener('click', ()=> window.scrollTo({top:0,behavior:'smooth'}));
 
-    // Zoom
+    // Zoom (click image anywhere with data-zoom)
     document.body.addEventListener('click', (e)=>{
       const img = e.target.closest('img[data-zoom]');
       if(!img) return;
@@ -786,7 +805,7 @@
     zi.addEventListener('pointerup', ()=> dragging=false);
     zi.addEventListener('pointercancel', ()=> dragging=false);
 
-    // Reveal on view (lazy fade-in)
+    // Lazy reveal observer for images and items
     setupRevealObserver();
   }
 
@@ -795,19 +814,35 @@
     document.querySelectorAll('.close-cart').forEach(b=> b.classList.toggle('dark', on));
   }
 
-  /* ====== Reveal (IntersectionObserver) ====== */
+  /* ====== Reveal (IntersectionObserver) for lazy fade-in images ====== */
   let revealObserver;
   function setupRevealObserver(){
-    const opts = {root:null, rootMargin:'0px 0px -10% 0px', threshold:0.1};
+    const opts = {root:null, rootMargin:'0px 0px -10% 0px', threshold:0.08};
+    // observe images and card wrappers
     revealObserver = new IntersectionObserver((entries, obs)=>{
       entries.forEach(entry=>{
         if(entry.isIntersecting){
-          entry.target.classList.add('show');
+          const el = entry.target;
+          // if image, add show class
+          if(el.tagName === 'IMG'){
+            el.classList.add('show');
+          } else {
+            // find images inside and show them
+            el.querySelectorAll && el.querySelectorAll('img').forEach(img=> img.classList.add('show'));
+          }
+          entry.target.classList.add && entry.target.classList.add('show');
           obs.unobserve(entry.target);
         }
       });
     }, opts);
-    $$('[data-reveal]').forEach(el=> revealObserver.observe(el));
+
+    // Observe product cards, gallery images, testi images, slide images
+    $$('#productsGrid .card').forEach(el=> revealObserver.observe(el));
+    $$('#galleryGrid img').forEach(img=> revealObserver.observe(img));
+    $$('#testiGrid img').forEach(img=> revealObserver.observe(img));
+    $$('#slidesContainer img').forEach(img=> revealObserver.observe(img));
+    // also observe any direct images added after render
+    // Note: we call this after rendering content so observers attach correct nodes
   }
 
   /* ====== Zoom state ====== */
@@ -849,10 +884,22 @@
       renderGallery();
       renderTesti();
 
+      // initialize swipers after DOM injection
       initSwipers();
-      setupUI();
 
-      // Countdown loop (FIX)
+      // attach UI handlers and lazy observers AFTER elements present
+      setupUI();
+      // attach reveal observers to newly rendered elements
+      // re-run reveal observer (safe to call)
+      setTimeout(()=> {
+        // ensure images are observed for lazy fade-in
+        $$('#productsGrid .card').forEach(el=> revealObserver.observe(el));
+        $$('#galleryGrid img').forEach(img=> revealObserver.observe(img));
+        $$('#testiGrid img').forEach(img=> revealObserver.observe(img));
+        $$('#slidesContainer img').forEach(img=> revealObserver.observe(img));
+      }, 50);
+
+      // Countdown loop
       updateCountdowns();
       setInterval(updateCountdowns, 1000);
 
