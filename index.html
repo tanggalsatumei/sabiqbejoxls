@@ -17,23 +17,19 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css"/>
 
   <style>
-    :root{
-      --primary:#121212; --accent:#ffd700; --bg:#ffffff; --card:#ffffff; --text:#222; --muted:#777; --border:#e9e9e9; --maxw:1200px;
-      --headerTop:0px;
-    }
-    body.dark{ --primary:#0b0b0b; --bg:#0a0a0a; --card:#111; --text:#eaeaea; --muted:#a1a1a1; --border:#222; }
-    *{box-sizing:border-box} html,body{height:100%}
-    body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
-    a{color:inherit;text-decoration:none}
-    img{max-width:100%;display:block}
-
+    /* (CSS same seperti versi sebelumnya — dipersingkat di sini agar jawaban fokus pada JS yang diperbaiki) */
+    :root{--primary:#121212;--accent:#ffd700;--bg:#fff;--card:#fff;--text:#222;--muted:#777;--border:#e9e9e9;--maxw:1200px;--headerTop:0px}
+    body.dark{--primary:#0b0b0b;--bg:#0a0a0a;--card:#111;--text:#eaeaea;--muted:#a1a1a1;--border:#222}
+    *{box-sizing:border-box} html,body{height:100%} body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none} img{max-width:100%;display:block}
+    /* ... semua style dari versi sebelumnya tetap disalin di sini ... */
+    /* Untuk singkat, paste seluruh CSS dari file terakhir (sama persis). */
+    /* --- BEGIN STYLES (copy/paste the big CSS block from previous file) --- */
     /* LOADING */
     #loadingOverlay{position:fixed;inset:0;background:rgba(0,0,0,.08);display:none;align-items:center;justify-content:center;z-index:15000}
     #loadingOverlay.show{display:flex}
     .spinner{width:42px;height:42px;border:4px solid #ddd;border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
-
-    /* HEADER */
     header{position:fixed; top:var(--headerTop); left:0; right:0; background:var(--primary); color:var(--accent); z-index:10000; box-shadow:0 2px 10px rgba(0,0,0,.15)}
     .header-bar{max-width:var(--maxw);margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:12px;gap:12px}
     .logo{display:flex;align-items:center;gap:10px;font-weight:700}
@@ -43,19 +39,13 @@
     main, #hero{margin-top:calc(76px + var(--headerTop))}
     .menu-toggle{display:none;background:none;border:0;color:var(--accent);font-size:1.8rem}
     .btn{background:none;color:var(--accent);border:1px solid var(--accent);padding:.45rem .7rem;border-radius:8px;cursor:pointer}
-
-    /* PROMO MARQUEE */
     .promo-marquee{display:none; position:fixed; top:0; left:0; right:0; background:var(--accent); color:#000; font-weight:700; padding:.45rem; text-align:center; z-index:11000}
     .promo-marquee .marq{display:inline-block;white-space:nowrap;animation:marq 16s linear infinite}
     @keyframes marq{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
-
-    /* OFFCANVAS */
     .offcanvas-left{position:fixed;left:-100%;top:0;width:80%;max-width:360px;height:100%;background:var(--primary);color:var(--accent);padding:22px;z-index:12000;transition:left .25s;overflow:auto}
     .offcanvas-left.active{left:0}
     .offcanvas-left nav ul{display:flex;flex-direction:column;gap:22px;padding-top:22px}
     .offcanvas-left nav a{font-size:2.1rem}
-
-    /* HERO */
     #hero{position:relative;height:min(90vh,820px);overflow:hidden;background:#111}
     .swiper-hero,.swiper-hero .swiper-wrapper,.swiper-hero .swiper-slide{height:100%}
     .swiper-hero .swiper-slide{position:relative;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center}
@@ -65,16 +55,11 @@
     .slide-text h2{font-size:2.6rem;margin:0}
     .slide-text p{margin:.4rem 0 1rem 0}
     .slide-text .cta{display:inline-block;background:var(--accent);color:#000;padding:.6rem .9rem;border-radius:10px;font-weight:800}
-
-    /* MAIN */
     main{max-width:var(--maxw);margin:18px auto;padding:0 16px}
     h2.section-title{font-size:1.35rem;margin:0 0 12px 0;color:var(--text)}
-
-    /* PRODUCTS */
     .products-grid{display:grid;grid-template-columns:1fr;gap:16px}
     @media(min-width:600px){ .products-grid{grid-template-columns:repeat(2,1fr)} }
     @media(min-width:900px){ .products-grid{grid-template-columns:repeat(3,1fr)} }
-
     .card{border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--card);display:flex;flex-direction:column;align-items:center;position:relative;overflow:visible}
     .img-wrapper{position:relative;width:100%;max-width:260px;margin:0 auto}
     .img-wrapper img{width:100%;display:block;aspect-ratio:1/1;object-fit:cover;border-radius:10px;cursor:zoom-in;opacity:0;transform:translateY(8px);transition:opacity .45s ease, transform .45s ease}
@@ -85,22 +70,16 @@
     .price{display:flex;gap:8px;align-items:center;justify-content:center;margin-top:6px}
     .price .old{text-decoration:line-through;color:gray;display:none}
     .price .new{color:#d32f2f;font-weight:900}
-
-    /* GALLERY & TESTI */
     .gallery-section .swiper,.testi-section .swiper{padding:8px 0}
     .gallery-item img{height:180px;object-fit:cover;border-radius:10px;cursor:zoom-in;opacity:0;transform:translateY(8px);transition:opacity .45s ease, transform .45s ease}
     .gallery-item img.show{opacity:1;transform:none}
     .testimonial-card{background:var(--card);padding:12px;border-radius:12px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.06)}
     .testimonial-card img{width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:8px;cursor:zoom-in;opacity:0;transform:translateY(8px);transition:opacity .45s ease, transform .45s ease}
     .testimonial-card img.show{opacity:1;transform:none}
-
-    /* VIDEO GRID */
     .video-grid{display:grid;grid-template-columns:1fr;gap:16px}
     .video-wrapper iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:10px}
     .video-side{border:1px solid var(--border);border-radius:10px;padding:12px;background:var(--card)}
     @media(min-width:980px){ .video-grid{grid-template-columns:2fr 1fr} }
-
-    /* FLOATING CONTROLS */
     .controls-float{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:10px;align-items:center;z-index:13000}
     .control-btn{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--card);box-shadow:0 6px 18px rgba(0,0,0,.12);cursor:pointer;border:1px solid var(--border);transition:opacity .25s, transform .25s}
     .control-btn img{width:28px;height:28px}
@@ -109,12 +88,8 @@
     .scroll-top.visible{opacity:1; visibility:visible; transform:none}
     .floating-cart{position:relative;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--card);cursor:pointer}
     .cart-badge{position:absolute;top:-8px;right:-8px;background:#e53935;color:#fff;font-size:.75rem;padding:5px 7px;border-radius:50%;font-weight:800;display:none}
-
-    /* WA brand */
     .wa-btn{background:transparent;border:0;box-shadow:none;padding:0}
     .wa-btn img{width:56px;height:56px}
-
-    /* CART PANEL */
     .cart-panel{position:fixed;right:-100%;top:0;height:100%;width:360px;max-width:92%;background:var(--card);box-shadow:-6px 0 24px rgba(0,0,0,.2);z-index:16000;padding:18px;transition:right .25s;overflow:auto;border-left:1px solid var(--border)}
     .cart-panel.active{right:0}
     .close-cart{position:absolute;top:8px;right:10px;background:none;border:0;font-size:1.8rem;cursor:pointer}
@@ -122,34 +97,21 @@
     .cart-item{display:flex;justify-content:space-between;align-items:center;padding:8px 6px;border-bottom:1px dashed var(--border)}
     .qty-controls{display:flex;gap:8px;align-items:center}
     .qty-controls button{padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card);cursor:pointer}
-    @media(max-width:520px){
-      #cartPanel{font-size:1.15rem}
-      .cart-panel{width:92%}
-      .cart-item{padding:12px 6px}
-      .offcanvas-left nav a{font-size:2.2rem}
-    }
-
-    /* ZOOM */
+    @media(max-width:520px){#cartPanel{font-size:1.15rem}.cart-panel{width:92%}.cart-item{padding:12px 6px}.offcanvas-left nav a{font-size:2.2rem}}
     .zoom-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:20000;display:none;align-items:center;justify-content:center;cursor:zoom-out}
     .zoom-overlay.show{display:flex}
     .zoom-img{max-width:92vw;max-height:92vh;border-radius:8px;transform:translate(var(--tx,0),var(--ty,0)) scale(var(--scale,1));transition:transform .08s ease-out}
     .zoom-toolbar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:20001}
     .zoom-toolbar button{background:#fff;border:0;border-radius:10px;padding:.5rem .7rem;font-weight:800;cursor:pointer}
     .zoom-close{position:fixed;top:14px;right:14px;background:#fff;border:0;border-radius:10px;padding:.4rem .6rem;font-weight:900;cursor:pointer}
-
-    /* FOOTER */
     footer{background:var(--primary);color:var(--accent);margin-top:28px}
     .footer-inner{max-width:var(--maxw);margin:0 auto;padding:18px 16px;display:grid;gap:18px}
     #footer-map iframe{width:100%;height:220px;border:0;border-radius:10px}
-    @media(min-width:900px){
-      .footer-inner{grid-template-columns:1fr 1fr}
-      #footer-map{order:1}
-    }
-
-    /* SKELETON */
+    @media(min-width:900px){.footer-inner{grid-template-columns:1fr 1fr}#footer-map{order:1}}
     .skeleton{background:linear-gradient(90deg,#eee,#f7f7f7,#eee);background-size:200% 100%;animation:shimmer 1.2s linear infinite;border-radius:10px}
     @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
     @media(max-width:900px){.slide-content{flex-direction:column;text-align:center}.slide-content img{width:170px}.menu-toggle{display:block}nav ul{display:none}}
+    /* --- END STYLES --- */
   </style>
 </head>
 <body>
@@ -334,7 +296,7 @@
   const API_URL = "https://script.google.com/macros/s/AKfycbw7z-KG3qwpi8-AkrMPGg2ONX_gWwepiN7oKPiAcx6n_fVBjASLZ79IMxsuV99tUisCwg/exec";
   const API_TOKEN = "1_sE-EY0hPXT_mQBg7sifRUoDAon6DvQNQZcUsrwnD0A";
   const LOCALE = "id-ID";
-  const TZONE = 'Asia/Jakarta'; // gunakan zona Indonesia untuk time-only
+  const TZONE = 'Asia/Jakarta'; // zona yang dipakai untuk waktu jam-only
   /* ========================= */
 
   const $ = (s, ctx=document) => ctx.querySelector(s);
@@ -346,14 +308,40 @@
   async function safeFetch(url){ const res=await fetch(url,{cache:'no-cache'}); const txt=await res.text(); if(txt.trim().startsWith('<')) throw new Error('API returned HTML'); const j=safeParseJSON(txt); if(!j) throw new Error('Invalid JSON'); return j; }
   function escapeHtml(s){ if(s==null) return ''; return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
-  /* ===== Time helpers (use Asia/Jakarta for time-only) ===== */
-  // get current Date in specific timezone as local date object representing that timezone
-  function nowInTZ(tz = TZONE){
-    // create a date string in locale of that timezone, then parse it as local
-    const parts = new Date().toLocaleString('en-US', {timeZone: tz});
-    return new Date(parts);
+  /* ===== Time utilities (robust Jakarta handling) ===== */
+  // gunakan Intl.formatToParts untuk mendapatkan waktu sekarang di timezone tertentu
+  function getTZPartsNow(tz){
+    const now = new Date();
+    const fmt = new Intl.DateTimeFormat('en-US', {
+      timeZone: tz,
+      year: 'numeric', month: 'numeric', day: 'numeric',
+      hour: 'numeric', minute: 'numeric', second: 'numeric',
+      hour12: false
+    });
+    const partsArr = fmt.formatToParts(now);
+    const parts = {};
+    partsArr.forEach(p=> { if(p.type !== 'literal') parts[p.type] = p.value; });
+    return {
+      year: Number(parts.year),
+      month: Number(parts.month),
+      day: Number(parts.day),
+      hour: Number(parts.hour),
+      minute: Number(parts.minute),
+      second: Number(parts.second)
+    };
   }
-  function normalizeHM(s){ return String(s||'').trim().replace(/[.]/g,':'); } // support "07.30"
+
+  // get offset (minutes) such that:
+  // absMsForTZWallClock = Date.UTC(year,month-1,day,h,m,s) - offsetMinutes*60000
+  function getTZOffsetMinutes(tz){
+    const now = new Date();
+    const parts = getTZPartsNow(tz);
+    const utcForParts = Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second);
+    const diffMin = Math.round((utcForParts - now.getTime()) / 60000);
+    return diffMin;
+  }
+
+  function normalizeHM(s){ return String(s||'').trim().replace(/[.]/g,':'); }
   function parseHM(str){
     if(!str) return null;
     const z = normalizeHM(str);
@@ -363,14 +351,15 @@
     if(h>23||mi>59||s>59) return null;
     return {h, m:mi, s};
   }
+
   function tryParseDateTime(str){
     if(!str) return null;
-    // trim timezone tokens like WIB/WITA/WIT
+    // remove timezone tokens like WIB/WITA/WIT
     const s = String(str).replace(/(WIB|WITA|WIT|UTC[+-]?\d+|GMT[+-]?\d+)/ig,'').trim();
-    // try Date parse
+    // native Date parse
     const d = new Date(s);
     if(!isNaN(d.getTime())) return d;
-    // try dd/mm/yyyy hh:mm
+    // dd/mm/yyyy hh:mm
     const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})(?:[ T](\d{1,2})[:.](\d{2})(?::(\d{2}))?)?$/);
     if(m){
       let day=+m[1], mon=+m[2]-1, yr=+m[3]; if(yr<100) yr+=2000;
@@ -380,39 +369,49 @@
     return null;
   }
 
-  // get promo status; time-only strings interpreted in TZONE (Asia/Jakarta)
+  // Convert a TZ wall-clock (y,m,d,h,m,s) into absolute epoch ms
+  function tzWallClockToEpochMs(tz, year, month, day, hour, minute, second){
+    const offsetMin = getTZOffsetMinutes(tz);
+    // Date.UTC treats given components as UTC; subtracting offset gets the actual instant for that wall-clock in tz
+    return Date.UTC(year, month - 1, day, hour, minute, second || 0) - (offsetMin * 60000);
+  }
+
+  // Returns promo status given start/end strings.
+  // Supports:
+  //  - absolute datetimes (dd/mm/yyyy HH:MM or JS-parseable)
+  //  - time-only HH:MM (interpreted as day-time in Asia/Jakarta)
+  // If end is omitted, uses 23:59:59; if start omitted uses 00:00:00.
   function getPromoStatus(startStr, endStr){
-    const now = nowInTZ(TZONE);
     const clean = v => (v||'').toString().replace(/[–—]/g,'-').trim();
-    let sStr = clean(startStr), eStr = clean(endStr);
+    const sStr = clean(startStr), eStr = clean(endStr);
     if(!sStr && !eStr) return {active:false, secondsLeft:0};
 
-    // try absolute datetimes first
+    // if both parse as absolute datetimes and at least one contains a date token, treat as absolute
     const sDT = tryParseDateTime(sStr);
     const eDT = tryParseDateTime(eStr);
-    if(sDT && eDT){
-      // treat as absolute (in local runtime tz) — assume sheet times are in local Jakarta if date provided without TZ
-      const nowUtc = new Date(); // compare using actual now
-      const active = nowUtc >= sDT && nowUtc <= eDT;
-      const secondsLeft = active ? Math.max(0, Math.floor((eDT - nowUtc)/1000)) : 0;
+    const containsDate = (t) => /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/.test(String(t));
+    if(sDT && eDT && (containsDate(sStr) || containsDate(eStr))){
+      const nowMs = Date.now();
+      const active = nowMs >= sDT.getTime() && nowMs <= eDT.getTime();
+      const secondsLeft = active ? Math.max(0, Math.floor((eDT.getTime() - nowMs)/1000)) : 0;
       return {active, secondsLeft};
     }
 
-    // otherwise handle as time-only (HH:MM). Interpret those times as in TZONE.
+    // Otherwise treat as time-only (HH:MM) in TZONE (Asia/Jakarta)
     const st = parseHM(sStr || '00:00');
     const en = parseHM(eStr || '23:59:59');
     if(!st || !en) return {active:false, secondsLeft:0};
 
-    // build start and end Date objects in the Jakarta timezone by using nowInTZ to get date parts
-    const base = nowInTZ(TZONE);
-    const start = new Date(base.getFullYear(), base.getMonth(), base.getDate(), st.h, st.m, st.s||0, 0);
-    let end = new Date(base.getFullYear(), base.getMonth(), base.getDate(), en.h, en.m, en.s||0, 0);
-    // if end <= start -> crosses midnight -> add 1 day to end
-    if(end <= start) end.setDate(end.getDate() + 1);
+    // base date in TZ (year/month/day)
+    const baseParts = getTZPartsNow(TZONE);
+    const startMs = tzWallClockToEpochMs(TZONE, baseParts.year, baseParts.month, baseParts.day, st.h, st.m, st.s||0);
+    let endMs = tzWallClockToEpochMs(TZONE, baseParts.year, baseParts.month, baseParts.day, en.h, en.m, en.s||0);
+    // crosses midnight
+    if(endMs <= startMs) endMs += 24*3600*1000;
 
-    // compute secondsLeft by comparing to now expressed in TZONE (we used now variable)
-    const active = now >= start && now <= end;
-    const secondsLeft = active ? Math.max(0, Math.floor((end - now)/1000)) : 0;
+    const nowMs = Date.now();
+    const active = nowMs >= startMs && nowMs <= endMs;
+    const secondsLeft = active ? Math.max(0, Math.floor((endMs - nowMs)/1000)) : 0;
     return {active, secondsLeft};
   }
 
@@ -424,7 +423,7 @@
     return `${pad(h)}j ${pad(m)}m ${pad(sec)}dtk`;
   }
 
-  /* ====== State & fetch ====== */
+  /* ====== App state & helpers (unchanged) ====== */
   let SETTINGS = {};
   let PRODUCTS = [], SLIDES = [], GALLERY = [], TESTIS = [];
   let cart = [];
@@ -437,7 +436,6 @@
     if(Array.isArray(j)) return j;
     return [];
   }
-
   function rowsToMap(rows){
     const m={};
     (rows||[]).forEach(r=>{
@@ -452,7 +450,6 @@
     });
     return m;
   }
-
   const getAny = (r, keys=[]) => { for(const k of keys){ if(r[k]!==undefined && r[k]!=='' && r[k]!==null) return r[k]; } return ''; };
 
   function normalizeSlides(rows){
@@ -461,6 +458,7 @@
       img: getAny(r,['image','image_url','gambar','gbr','gbr image']),
       alt: getAny(r,['altslider','alt slider','alt_slider','alt','alt_text']),
       title: getAny(r,['judulslider','judul slider','title','judul']),
+      // prioritas ket_slider seperti request
       caption: getAny(r,['ket_slider','ketslider','ket slider','caption','keterangan','ket','keterangan slider','deskripsi','description','desc']),
       btn_text: getAny(r,['tombol','button','btn_text']) || 'Lihat',
       btn_link: getAny(r,['tombol_link','button_link','btn_link','link']) || '#'
@@ -500,7 +498,6 @@
     }));
   }
 
-  /* ====== Apply settings ====== */
   function applySettings(s){
     if(!s) return;
     SETTINGS = s;
@@ -510,7 +507,6 @@
     if(s.warna) document.documentElement.style.setProperty('--accent', s.warna);
     if(s.textpromo) $('#promo-text').textContent = s.textpromo;
 
-    // WA
     if(s.wa){
       const waLink = `https://wa.me/${s.wa}?text=${encodeURIComponent(s['wa message']||s.wa_message||'')}`;
       $('#waFloat').href = waLink;
@@ -521,7 +517,6 @@
     if(s['jam buka']) $('#footer-hours').textContent = s['jam buka'];
     if(s.deskripsi) $('#footer-desc').textContent = s.deskripsi;
 
-    // Maps
     if(s.maps){
       const holder = $('#footer-map'); holder.innerHTML = '';
       const iframe = document.createElement('iframe');
@@ -531,11 +526,15 @@
       iframe.addEventListener('load', ()=> clearTimeout(t), {once:true});
     }
 
-    // Video
     if(s.video_embed) $('#videoWrapper').innerHTML = `<iframe src="${s.video_embed}" frameborder="0" allowfullscreen loading="lazy" title="Video Produksi"></iframe>`;
   }
 
-  /* ====== Renderers ====== */
+  /* ===== renderers, swipers, cart, UI, reveal observer, zoom ... (sama seperti versi terakhir) ===== */
+  /* Untuk ringkas: salin semua fungsi renderHero, renderProducts, renderGallery, renderTesti,
+     initSwipers, updateCountdowns (yang memanggil getPromoStatus), cart functions, setupUI,
+     reveal observer, zoom, dan init loop dari file sebelumnya — mereka tetap sama. */
+
+  // Karena pesan ini fokus pada perbaikan countdown, saya menyertakan fungsi updateCountdowns yang memakai getPromoStatus:
   function renderHero(){
     const container = $('#slidesContainer');
     container.innerHTML = '';
@@ -617,7 +616,6 @@
     });
   }
 
-  /* ====== Swipers ====== */
   function initSwipers(){
     if(heroSwiper) heroSwiper.destroy(true,true);
     heroSwiper = new Swiper('#swiperHero', {
@@ -652,7 +650,6 @@
     });
   }
 
-  /* ====== Promo countdown + marquee + badge ====== */
   function updateCountdowns(){
     const cards = $$('#productsGrid .card');
     let anyPromo=false;
@@ -684,13 +681,12 @@
       }
     });
 
-    // Marquee on/off + geser header
     const promoBar = $('#promo-bar');
     promoBar.style.display = anyPromo ? 'block' : 'none';
     document.documentElement.style.setProperty('--headerTop', anyPromo ? '36px' : '0px');
   }
 
-  /* ====== Cart ====== */
+  /* ---- cart, UI, reveal, zoom functions (reuse from previous file) ---- */
   function addToCartFromCard(card){
     const id = card.dataset.id || ('tmp-'+Math.random().toString(36).slice(2,8));
     const name = card.querySelector('h3')?.innerText || 'Produk';
@@ -744,24 +740,19 @@
     updateCartUI();
   }
 
-  /* ====== UI & interactions ====== */
   function setupUI(){
-    // DARK mode
     const darkOn = localStorage.getItem('dark')==='1';
     if(darkOn) document.body.classList.add('dark');
     syncCloseCartDark();
 
-    // Offcanvas
     $('#menuToggle').addEventListener('click', ()=> { $('#offcanvasLeft').classList.add('active'); $('#offcanvasLeft').setAttribute('aria-hidden','false'); });
     $('#offLeftClose').addEventListener('click', ()=> { $('#offcanvasLeft').classList.remove('active'); $('#offcanvasLeft').setAttribute('aria-hidden','true'); });
     $$('.off-link').forEach(a=> a.addEventListener('click', ()=> $('#offcanvasLeft').classList.remove('active')));
 
-    // Cart
     $('#cartFloat').addEventListener('click', ()=> { $('#cartPanel').classList.add('active'); $('#cartPanel').setAttribute('aria-hidden','false'); renderCartPanel(); });
     $('#closeCartPanel').addEventListener('click', ()=> { $('#cartPanel').classList.remove('active'); $('#cartPanel').setAttribute('aria-hidden','true'); });
     $('#clearCart').addEventListener('click', ()=> { cart=[]; updateCartUI(); });
 
-    // Checkout
     $('#checkoutBtn').addEventListener('click', ()=>{
       if(!SETTINGS.wa){ alert('Nomor WhatsApp belum diatur di sheet Pengaturan.'); return; }
       if(cart.length===0){ alert('Keranjang masih kosong'); return; }
@@ -770,14 +761,12 @@
       window.open(`https://wa.me/${SETTINGS.wa}?text=${msg}`, '_blank');
     });
 
-    // Dark toggle
     $('#darkToggle').addEventListener('click', ()=>{
       const on = document.body.classList.toggle('dark');
       localStorage.setItem('dark', on ? '1' : '0');
       syncCloseCartDark();
     });
 
-    // Scroll to top visibility
     const topBtn = $('#scrollTopBtn');
     const checkTopBtn = ()=>{
       if(window.scrollY > 200) topBtn.classList.add('visible');
@@ -787,7 +776,6 @@
     checkTopBtn();
     topBtn.addEventListener('click', ()=> window.scrollTo({top:0,behavior:'smooth'}));
 
-    // Zoom (click image anywhere with data-zoom)
     document.body.addEventListener('click', (e)=>{
       const img = e.target.closest('img[data-zoom]');
       if(!img) return;
@@ -805,7 +793,6 @@
     zi.addEventListener('pointerup', ()=> dragging=false);
     zi.addEventListener('pointercancel', ()=> dragging=false);
 
-    // Lazy reveal observer for images and items
     setupRevealObserver();
   }
 
@@ -814,38 +801,23 @@
     document.querySelectorAll('.close-cart').forEach(b=> b.classList.toggle('dark', on));
   }
 
-  /* ====== Reveal (IntersectionObserver) for lazy fade-in images ====== */
   let revealObserver;
   function setupRevealObserver(){
     const opts = {root:null, rootMargin:'0px 0px -10% 0px', threshold:0.08};
-    // observe images and card wrappers
     revealObserver = new IntersectionObserver((entries, obs)=>{
       entries.forEach(entry=>{
         if(entry.isIntersecting){
           const el = entry.target;
-          // if image, add show class
-          if(el.tagName === 'IMG'){
-            el.classList.add('show');
-          } else {
-            // find images inside and show them
-            el.querySelectorAll && el.querySelectorAll('img').forEach(img=> img.classList.add('show'));
-          }
+          if(el.tagName === 'IMG'){ el.classList.add('show'); }
+          else { el.querySelectorAll && el.querySelectorAll('img').forEach(img=> img.classList.add('show')); }
           entry.target.classList.add && entry.target.classList.add('show');
           obs.unobserve(entry.target);
         }
       });
     }, opts);
-
-    // Observe product cards, gallery images, testi images, slide images
-    $$('#productsGrid .card').forEach(el=> revealObserver.observe(el));
-    $$('#galleryGrid img').forEach(img=> revealObserver.observe(img));
-    $$('#testiGrid img').forEach(img=> revealObserver.observe(img));
-    $$('#slidesContainer img').forEach(img=> revealObserver.observe(img));
-    // also observe any direct images added after render
-    // Note: we call this after rendering content so observers attach correct nodes
+    // observe placeholders later (called after render)
   }
 
-  /* ====== Zoom state ====== */
   let scale=1, tx=0, ty=0, dragging=false, startX=0, startY=0, baseX=0, baseY=0;
   function openZoom(src, alt=''){
     const ov = $('#zoomOverlay'), img = $('#zoomImg');
@@ -884,22 +856,18 @@
       renderGallery();
       renderTesti();
 
-      // initialize swipers after DOM injection
       initSwipers();
-
-      // attach UI handlers and lazy observers AFTER elements present
       setupUI();
-      // attach reveal observers to newly rendered elements
-      // re-run reveal observer (safe to call)
+
+      // attach reveal observation to new elements
       setTimeout(()=> {
-        // ensure images are observed for lazy fade-in
         $$('#productsGrid .card').forEach(el=> revealObserver.observe(el));
         $$('#galleryGrid img').forEach(img=> revealObserver.observe(img));
         $$('#testiGrid img').forEach(img=> revealObserver.observe(img));
         $$('#slidesContainer img').forEach(img=> revealObserver.observe(img));
       }, 50);
 
-      // Countdown loop
+      // Countdown loop (fixed)
       updateCountdowns();
       setInterval(updateCountdowns, 1000);
 
