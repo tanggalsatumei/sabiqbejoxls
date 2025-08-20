@@ -381,7 +381,7 @@
   //  - absolute datetimes (dd/mm/yyyy HH:MM or JS-parseable)
   //  - time-only HH:MM (interpreted as day-time in Asia/Jakarta)
   // If end is omitted, uses 23:59:59; if start omitted uses 00:00:00.
-  function getPromoStatus(startStr, endStr){function getPromoStatus(startStr, endStr){
+  function getPromoStatus(startStr, endStr){
   const clean = v => (v||'').toString().replace(/[–—]/g,'-').trim();
   const sStr = clean(startStr), eStr = clean(endStr);
   if(!sStr && !eStr) return {active:false, secondsLeft:0};
@@ -505,6 +505,8 @@
     };
   });
 }
+
+
 
   function normalizeGallery(rows){
     return (rows||[]).map(r=>({
