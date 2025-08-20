@@ -7,7 +7,6 @@
   <meta id="meta-desc" name="description" content="Telur asin & olahan khas Lamongan – CV. Sabiq Bejo.">
   <link id="favicon" rel="icon" href="https://img.icons8.com/emoji/48/egg-emoji.png" type="image/png">
 
-  <!-- Preconnects -->
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://script.google.com" crossorigin>
   <link rel="preconnect" href="https://lh3.googleusercontent.com" crossorigin>
@@ -19,7 +18,7 @@
   <style>
     :root{
       --primary:#121212; --accent:#ffd700; --bg:#ffffff; --card:#ffffff; --text:#222; --muted:#777; --border:#e9e9e9; --maxw:1200px;
-      --headerTop:0px; /* bergeser saat promo bar aktif */
+      --headerTop:0px;
     }
     body.dark{ --primary:#0b0b0b; --bg:#0a0a0a; --card:#111; --text:#eaeaea; --muted:#a1a1a1; --border:#222; }
     *{box-sizing:border-box} html,body{height:100%}
@@ -33,53 +32,44 @@
     .spinner{width:42px;height:42px;border:4px solid #ddd;border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
 
-    /* FIXED HEADER */
-    header{
-      position:fixed; top:var(--headerTop); left:0; right:0;
-      background:var(--primary); color:var(--accent); z-index:10000;
-      box-shadow:0 2px 10px rgba(0,0,0,.15);
-    }
+    /* HEADER */
+    header{position:fixed; top:var(--headerTop); left:0; right:0; background:var(--primary); color:var(--accent); z-index:10000; box-shadow:0 2px 10px rgba(0,0,0,.15)}
     .header-bar{max-width:var(--maxw);margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:12px;gap:12px}
     .logo{display:flex;align-items:center;gap:10px;font-weight:700}
     .logo img{width:36px;height:36px;border-radius:6px}
     nav ul{display:flex;gap:14px;list-style:none;padding:0;margin:0}
     nav a{font-weight:700;color:var(--accent)}
-
-    /* page offset di bawah header */
     main, #hero{margin-top:calc(76px + var(--headerTop))}
     .menu-toggle{display:none;background:none;border:0;color:var(--accent);font-size:1.8rem}
     .btn{background:none;color:var(--accent);border:1px solid var(--accent);padding:.45rem .7rem;border-radius:8px;cursor:pointer}
 
-    /* PROMO MARQUEE (di atas header) */
-    .promo-marquee{
-      display:none; position:fixed; top:0; left:0; right:0;
-      background:var(--accent); color:#000; font-weight:700; padding:.45rem; text-align:center; z-index:11000;
-    }
+    /* PROMO MARQUEE */
+    .promo-marquee{display:none; position:fixed; top:0; left:0; right:0; background:var(--accent); color:#000; font-weight:700; padding:.45rem; text-align:center; z-index:11000}
     .promo-marquee .marq{display:inline-block;white-space:nowrap;animation:marq 16s linear infinite}
     @keyframes marq{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
 
-    /* Offcanvas left */
+    /* OFFCANVAS */
     .offcanvas-left{position:fixed;left:-100%;top:0;width:80%;max-width:360px;height:100%;background:var(--primary);color:var(--accent);padding:22px;z-index:12000;transition:left .25s;overflow:auto}
     .offcanvas-left.active{left:0}
     .offcanvas-left nav ul{display:flex;flex-direction:column;gap:22px;padding-top:22px}
     .offcanvas-left nav a{font-size:2.1rem}
 
-    /* hero */
+    /* HERO */
     #hero{position:relative;height:min(90vh,820px);overflow:hidden;background:#111}
     .swiper-hero,.swiper-hero .swiper-wrapper,.swiper-hero .swiper-slide{height:100%}
     .swiper-hero .swiper-slide{position:relative;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center}
-    .hero-overlay{position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.55));z-index:1;pointer-events:none} /* tidak blok klik */
+    .hero-overlay{position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.55));z-index:1;pointer-events:none}
     .slide-content{position:relative;z-index:2;display:flex;gap:20px;align-items:center;max-width:1000px;padding:28px;color:#fff}
     .slide-content img{width:220px;aspect-ratio:1/1;object-fit:contain;border-radius:10px}
     .slide-text h2{font-size:2.6rem;margin:0}
     .slide-text p{margin:.4rem 0 1rem 0}
     .slide-text .cta{display:inline-block;background:var(--accent);color:#000;padding:.6rem .9rem;border-radius:10px;font-weight:800}
 
-    /* layout main */
+    /* MAIN */
     main{max-width:var(--maxw);margin:18px auto;padding:0 16px}
     h2.section-title{font-size:1.35rem;margin:0 0 12px 0;color:var(--text)}
 
-    /* products grid — 3 kolom di desktop */
+    /* PRODUCTS */
     .products-grid{display:grid;grid-template-columns:1fr;gap:16px}
     @media(min-width:600px){ .products-grid{grid-template-columns:repeat(2,1fr)} }
     @media(min-width:900px){ .products-grid{grid-template-columns:repeat(3,1fr)} }
@@ -94,32 +84,33 @@
     .price .old{text-decoration:line-through;color:gray;display:none}
     .price .new{color:#d32f2f;font-weight:900}
 
-    /* gallery/testi */
+    /* GALLERY & TESTI */
     .gallery-section .swiper,.testi-section .swiper{padding:8px 0}
     .gallery-item img{height:180px;object-fit:cover;border-radius:10px;cursor:zoom-in}
     .testimonial-card{background:var(--card);padding:12px;border-radius:12px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.06)}
     .testimonial-card img{width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:8px}
 
-    /* VIDEO GRID (2/3 : 1/3 di layar lebar) */
+    /* VIDEO GRID */
     .video-grid{display:grid;grid-template-columns:1fr;gap:16px}
     .video-wrapper iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:10px}
     .video-side{border:1px solid var(--border);border-radius:10px;padding:12px;background:var(--card)}
     @media(min-width:980px){ .video-grid{grid-template-columns:2fr 1fr} }
 
-    /* cart & floating controls */
+    /* FLOATING CONTROLS */
     .controls-float{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:10px;align-items:center;z-index:13000}
-    .control-btn{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--card);box-shadow:0 6px 18px rgba(0,0,0,.12);cursor:pointer;border:1px solid var(--border)}
+    .control-btn{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--card);box-shadow:0 6px 18px rgba(0,0,0,.12);cursor:pointer;border:1px solid var(--border);transition:opacity .25s, transform .25s}
     .control-btn img{width:28px;height:28px}
     .control-btn.primary{background:var(--accent);color:#000}
-    .scroll-top{font-size:20px}
+    .scroll-top{font-size:20px; opacity:0; visibility:hidden; transform:translateY(8px)}
+    .scroll-top.visible{opacity:1; visibility:visible; transform:none}
     .floating-cart{position:relative;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--card);cursor:pointer}
     .cart-badge{position:absolute;top:-8px;right:-8px;background:#e53935;color:#fff;font-size:.75rem;padding:5px 7px;border-radius:50%;font-weight:800;display:none}
 
-    /* khusus WA brand button – pakai logo resmi (SVG) */
+    /* WA brand */
     .wa-btn{background:transparent;border:0;box-shadow:none;padding:0}
     .wa-btn img{width:56px;height:56px}
 
-    /* cart panel (harus di atas header) */
+    /* CART PANEL */
     .cart-panel{position:fixed;right:-100%;top:0;height:100%;width:360px;max-width:92%;background:var(--card);box-shadow:-6px 0 24px rgba(0,0,0,.2);z-index:16000;padding:18px;transition:right .25s;overflow:auto;border-left:1px solid var(--border)}
     .cart-panel.active{right:0}
     .close-cart{position:absolute;top:8px;right:10px;background:none;border:0;font-size:1.8rem;cursor:pointer}
@@ -134,7 +125,7 @@
       .offcanvas-left nav a{font-size:2.2rem}
     }
 
-    /* zoom overlay (paling atas) */
+    /* ZOOM */
     .zoom-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:20000;display:none;align-items:center;justify-content:center;cursor:zoom-out}
     .zoom-overlay.show{display:flex}
     .zoom-img{max-width:92vw;max-height:92vh;border-radius:8px;transform:translate(var(--tx,0),var(--ty,0)) scale(var(--scale,1));transition:transform .08s ease-out}
@@ -142,18 +133,21 @@
     .zoom-toolbar button{background:#fff;border:0;border-radius:10px;padding:.5rem .7rem;font-weight:800;cursor:pointer}
     .zoom-close{position:fixed;top:14px;right:14px;background:#fff;border:0;border-radius:10px;padding:.4rem .6rem;font-weight:900;cursor:pointer}
 
-    /* footer */
+    /* FOOTER */
     footer{background:var(--primary);color:var(--accent);margin-top:28px}
     .footer-inner{max-width:var(--maxw);margin:0 auto;padding:18px 16px;display:grid;gap:18px}
     #footer-map iframe{width:100%;height:220px;border:0;border-radius:10px}
     @media(min-width:900px){
       .footer-inner{grid-template-columns:1fr 1fr}
-      #footer-map{order:1} /* kiri maps, kanan profil */
+      #footer-map{order:1}
     }
 
-    /* skeleton */
+    /* SKELETON & REVEAL */
     .skeleton{background:linear-gradient(90deg,#eee,#f7f7f7,#eee);background-size:200% 100%;animation:shimmer 1.2s linear infinite;border-radius:10px}
     @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+    .reveal{opacity:0; transform:translateY(8px); transition:opacity .45s ease, transform .45s ease}
+    .reveal.show{opacity:1; transform:none}
+
     @media(max-width:900px){.slide-content{flex-direction:column;text-align:center}.slide-content img{width:170px}.menu-toggle{display:block}nav ul{display:none}}
   </style>
 </head>
@@ -162,12 +156,12 @@
   <!-- Loading -->
   <div id="loadingOverlay"><div class="spinner"></div></div>
 
-  <!-- Promo marquee (fixed ABOVE header) -->
+  <!-- Promo marquee -->
   <div id="promo-bar" class="promo-marquee" style="display:none">
     <div class="marq" id="promo-text">🔥 FLASH SALE! Diskon Terbatas 🔥</div>
   </div>
 
-  <!-- Offcanvas mobile -->
+  <!-- Offcanvas -->
   <div id="offcanvasLeft" class="offcanvas-left" aria-hidden="true">
     <button class="offcanvas-close" id="offLeftClose">×</button>
     <nav>
@@ -182,7 +176,7 @@
     </nav>
   </div>
 
-  <!-- Header (fixed) -->
+  <!-- Header -->
   <header>
     <div class="header-bar">
       <div style="display:flex;align-items:center;gap:12px">
@@ -216,9 +210,7 @@
   <!-- Hero -->
   <section id="hero">
     <div class="swiper swiper-hero" id="swiperHero">
-      <div class="swiper-wrapper" id="slidesContainer">
-        <!-- injected slides -->
-      </div>
+      <div class="swiper-wrapper" id="slidesContainer"></div>
       <div class="hero-overlay"></div>
       <div class="swiper-pagination"></div>
       <div class="swiper-button-prev"></div>
@@ -303,7 +295,6 @@
         <span id="cartBadge" class="cart-badge" style="display:none">0</span>
       </div>
     </div>
-    <!-- WA official logo -->
     <a id="waFloat" class="wa-btn" href="#" target="_blank" rel="noopener" title="WhatsApp">
       <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
     </a>
@@ -338,37 +329,40 @@
   <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
 
   <script>
-  /***** CONFIG *****/
+  /* ========= CONFIG ========= */
   const API_URL = "https://script.google.com/macros/s/AKfycbw7z-KG3qwpi8-AkrMPGg2ONX_gWwepiN7oKPiAcx6n_fVBjASLZ79IMxsuV99tUisCwg/exec";
   const API_TOKEN = "1_sE-EY0hPXT_mQBg7sifRUoDAon6DvQNQZcUsrwnD0A";
   const LOCALE = "id-ID";
-  /******************/
+  /* ========================= */
 
-  // Helpers
   const $ = (s, ctx=document) => ctx.querySelector(s);
   const $$ = (s, ctx=document) => Array.from((ctx||document).querySelectorAll(s));
-  function showLoading(show=true){ const el = $('#loadingOverlay'); if(!el) return; el.classList.toggle('show', !!show); }
+  const pad = n => String(n).padStart(2,'0');
+  function showLoading(show=true){ $('#loadingOverlay')?.classList.toggle('show', !!show); }
   function formatRupiah(v){ if(v==null||v==='') return '-'; const n=Number(String(v).replace(/\D/g,'')); if(isNaN(n)) return v; return n.toLocaleString(LOCALE); }
   function safeParseJSON(t){ try{return JSON.parse(t);}catch(e){return null;} }
   async function safeFetch(url){ const res=await fetch(url,{cache:'no-cache'}); const txt=await res.text(); if(txt.trim().startsWith('<')) throw new Error('API returned HTML'); const j=safeParseJSON(txt); if(!j) throw new Error('Invalid JSON'); return j; }
   function escapeHtml(s){ if(s==null) return ''; return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
-  // Time helpers
+  /* ===== Time parsing (robust) ===== */
+  const TZ_TOKENS = /(WIB|WITA|WIT|UTC[ ]*[+-]\d+|GMT[ ]*[+-]\d+)/ig;
+  function normalizeHM(s){ return String(s).trim().replace(/[.]/g,':'); } // support "07.30"
   function parseHM(str){
     if(!str) return null;
-    const m = String(str).trim().match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+    const z = normalizeHM(str);
+    const m = z.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
     if(!m) return null;
     let h=+m[1], mi=+m[2], s=+(m[3]||0);
     if(h>23||mi>59||s>59) return null;
     return {h, m:mi, s};
   }
+  function stripTZ(s){ return String(s).replace(TZ_TOKENS,'').trim(); }
   function tryParseDateTime(str){
     if(!str) return null;
-    const s = String(str).trim();
+    const s = stripTZ(str);
     let d = new Date(s);
     if(!isNaN(d.getTime())) return d;
-    // support dd/mm/yyyy[ hh:mm[:ss]] or dd-mm-yyyy
-    const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
+    const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})(?:[ T](\d{1,2})[.:](\d{2})(?::(\d{2}))?)?$/);
     if(m){
       let day=+m[1], mon=+m[2]-1, yr=+m[3]; if(yr<100) yr+=2000;
       let h=+(m[4]||0), mi=+(m[5]||0), se=+(m[6]||0);
@@ -377,43 +371,49 @@
     }
     return null;
   }
-  // return {active, secondsLeft} based on start & end (time-only or absolute date-time)
   function getPromoStatus(startStr, endStr, now=new Date()){
-    if(!startStr || !endStr) return {active:false, secondsLeft:0};
+    const clean = v => (v||'').toString().replace(/[–—]/g,'-').trim();
+    let sStr = clean(startStr), eStr = clean(endStr);
+    if(!sStr && !eStr) return {active:false, secondsLeft:0};
+    if(sStr && !eStr) eStr = '23:59:59';
+    if(!sStr && eStr) sStr = '00:00:00';
 
-    const startDT = tryParseDateTime(startStr);
-    const endDT = tryParseDateTime(endStr);
+    const startDT = tryParseDateTime(sStr);
+    const endDT = tryParseDateTime(eStr);
 
     if(startDT && endDT){
-      // absolute window
       const active = now >= startDT && now <= endDT;
       const secondsLeft = active ? Math.max(0, Math.floor((endDT - now)/1000)) : 0;
       return {active, secondsLeft};
     }
 
-    // daily time window (HH:MM)
-    const st = parseHM(startStr), en = parseHM(endStr);
+    // daily window
+    const st = parseHM(sStr), en = parseHM(eStr);
     if(!st || !en) return {active:false, secondsLeft:0};
 
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const start = new Date(today); start.setHours(st.h, st.m, st.s||0, 0);
     let end = new Date(today); end.setHours(en.h, en.m, en.s||0, 0);
-
-    // lintas tengah malam
     if(end <= start) end.setDate(end.getDate()+1);
-
-    let active = now >= start && now <= end;
+    const active = now >= start && now <= end;
     const secondsLeft = active ? Math.max(0, Math.floor((end - now)/1000)) : 0;
     return {active, secondsLeft};
   }
+  function formatHMS(total){
+    const s = Math.max(0, Math.floor(total));
+    const h = Math.floor(s/3600);
+    const m = Math.floor((s%3600)/60);
+    const sec = s%60;
+    return `${pad(h)}j ${pad(m)}m ${pad(sec)}dtk`;
+  }
 
-  // State
+  /* ====== STATE ====== */
   let SETTINGS = {};
   let PRODUCTS = [], SLIDES = [], GALLERY = [], TESTIS = [];
   let cart = [];
   let heroSwiper, gallerySwiper, testiSwiper;
 
-  // Sheets fetcher
+  /* ====== Fetch ====== */
   async function fetchSheet(name){
     const url = `${API_URL}?sheet=${encodeURIComponent(name)}&token=${encodeURIComponent(API_TOKEN)}`;
     const j = await safeFetch(url);
@@ -421,8 +421,6 @@
     if(Array.isArray(j)) return j;
     return [];
   }
-
-  // rows->map for Pengaturan
   function rowsToMap(rows){
     const m={};
     (rows||[]).forEach(r=>{
@@ -437,8 +435,6 @@
     });
     return m;
   }
-
-  // Normalizers + keys helper
   const getAny = (r, keys=[]) => { for(const k of keys){ if(r[k]!==undefined && r[k]!=='' && r[k]!==null) return r[k]; } return ''; };
 
   function normalizeSlides(rows){
@@ -447,12 +443,11 @@
       img: getAny(r,['image','image_url','gambar','gbr','gbr image']),
       alt: getAny(r,['altslider','alt slider','alt_slider','alt','alt_text']),
       title: getAny(r,['judulslider','judul slider','title','judul']),
-      caption: getAny(r,['ketslider','ket slider','caption','keterangan','ket']),
+      caption: getAny(r,['ketslider','ket slider','caption','keterangan','ket','keterangan slider','deskripsi','description','desc']),
       btn_text: getAny(r,['tombol','button','btn_text']) || 'Lihat',
       btn_link: getAny(r,['tombol_link','button_link','btn_link','link']) || '#'
     }));
   }
-
   function normalizeProducts(rows){
     return (rows||[]).map((r,i)=>({
       id: getAny(r,['id','ID','Id']) || 'p'+i,
@@ -466,10 +461,9 @@
       hargadiskon: getAny(r,['hargadiskon','harga diskon','hargadisc','diskon']),
       promostart: getAny(r,['promostart','promo_start','promo start','mulai','start']),
       promoend: getAny(r,['promoend','promo_end','promo end','selesai','end']),
-      aktif: String(getAny(r,['aktif','active'],'yes')).toLowerCase() === 'yes'
+      aktif: (String(getAny(r,['aktif','active'])).toLowerCase() || 'yes') === 'yes'
     }));
   }
-
   function normalizeGallery(rows){
     return (rows||[]).map(r=>({
       url: getAny(r,['gambar_url','image','url','gambar','link']),
@@ -477,10 +471,16 @@
     }));
   }
   function normalizeTestis(rows){
-    return (rows||[]).map(r=>({nama:getAny(r,['nama','name']), jabatan:getAny(r,['jabatan','role']), gambar:getAny(r,['gambar','image'])}));
+    return (rows||[]).map(r=>({
+      nama:getAny(r,['nama','name']),
+      jabatan:getAny(r,['jabatan','role']),
+      // FIX: dukung gambar_url
+      gambar:getAny(r,['gambar_url','gambar','image']),
+      alt:getAny(r,['alt','alt_text','alt_gambar']) || getAny(r,['nama','name'])
+    }));
   }
 
-  // Apply settings to UI
+  /* ====== Apply Settings ====== */
   function applySettings(s){
     if(!s) return;
     SETTINGS = s;
@@ -515,7 +515,7 @@
     if(s.video_embed) $('#videoWrapper').innerHTML = `<iframe src="${s.video_embed}" frameborder="0" allowfullscreen loading="lazy" title="Video Produksi"></iframe>`;
   }
 
-  // Renders
+  /* ====== Renderers ====== */
   function renderHero(){
     const container = $('#slidesContainer');
     container.innerHTML = '';
@@ -523,12 +523,12 @@
     SLIDES.forEach(s=>{
       const slide = document.createElement('div'); slide.className='swiper-slide';
       if(s.bg) slide.style.backgroundImage = `url('${s.bg}')`;
-      slide.innerHTML = `<div class="slide-content">
-        ${s.img ? `<img src="${s.img}" alt="${escapeHtml(s.alt||s.title||'Slide')}" loading="lazy" data-zoom="1">` : ''}
+      slide.innerHTML = `<div class="slide-content reveal" data-reveal>
+        ${s.img ? `<img src="${s.img}" alt="${escapeHtml(s.alt||s.title||'Slide')}" loading="lazy" decoding="async" data-zoom="1">` : ''}
         <div class="slide-text">
           <h2>${escapeHtml(s.title||'')}</h2>
-          <p>${escapeHtml(s.caption||'')}</p>
-          <a class="cta" href="${s.btn_link||'#'}"> ${escapeHtml(s.btn_text||'Lihat')} </a>
+          ${s.caption ? `<p>${escapeHtml(s.caption)}</p>` : ''}
+          <a class="cta" href="${s.btn_link||'#'}">${escapeHtml(s.btn_text||'Lihat')}</a>
         </div>
       </div>`;
       container.appendChild(slide);
@@ -539,7 +539,7 @@
     const grid = $('#productsGrid'); grid.innerHTML = '';
     if(!PRODUCTS.length){ grid.innerHTML = '<p>Tidak ada produk</p>'; return; }
     PRODUCTS.forEach(p=>{
-      const card = document.createElement('div'); card.className='card'; if(!p.aktif) card.style.opacity='.6';
+      const card = document.createElement('div'); card.className='card reveal'; card.setAttribute('data-reveal',''); if(!p.aktif) card.style.opacity='.6';
       card.dataset.id = p.id || '';
       card.dataset.start = p.promostart || '';
       card.dataset.end = p.promoend || '';
@@ -549,8 +549,12 @@
       const promoLabel = document.createElement('div'); promoLabel.className='promo-label'; promoLabel.textContent='PROMO'; card.appendChild(promoLabel);
 
       const iw = document.createElement('div'); iw.className='img-wrapper';
-      const img = document.createElement('img'); img.src = p.gbr || 'https://via.placeholder.com/400x400?text=No+Image'; img.alt = p.alt || p.nama || 'Produk'; img.loading='lazy'; img.setAttribute('data-zoom','1');
+      const img = document.createElement('img');
+      img.src = p.gbr || 'https://via.placeholder.com/400x400?text=No+Image';
+      img.alt = p.alt || p.nama || 'Produk';
+      img.loading='lazy'; img.decoding='async'; img.setAttribute('data-zoom','1'); img.setAttribute('data-reveal','');
       iw.appendChild(img);
+
       const co = document.createElement('div'); co.className='countdown-overlay'; co.style.display='none'; co.setAttribute('aria-live','polite'); iw.appendChild(co);
       card.appendChild(iw);
 
@@ -575,24 +579,25 @@
     if(!GALLERY.length) GALLERY = [{url:'https://via.placeholder.com/1000x700?text=Gallery', alt:'Galeri'}];
     GALLERY.forEach(it=>{
       const slide = document.createElement('div'); slide.className='swiper-slide gallery-item';
-      slide.innerHTML = `<img src="${it.url||''}" alt="${escapeHtml(it.alt||'Galeri')}" loading="lazy" data-zoom="1">`;
+      slide.innerHTML = `<img src="${it.url||''}" alt="${escapeHtml(it.alt||'Galeri')}" loading="lazy" decoding="async" data-zoom="1" data-reveal>`;
       g.appendChild(slide);
     });
   }
 
   function renderTesti(){
     const t = $('#testiGrid'); t.innerHTML = '';
-    if(!TESTIS.length) TESTIS = [{nama:'Budi', jabatan:'Pelanggan', gambar:'https://via.placeholder.com/600x400?text=User'}];
+    if(!TESTIS.length) TESTIS = [{nama:'Budi', jabatan:'Pelanggan', gambar:'https://via.placeholder.com/600x400?text=User', alt:'Testimoni'}];
     TESTIS.forEach(it=>{
       const slide = document.createElement('div'); slide.className='swiper-slide';
-      slide.innerHTML = `<div class="testimonial-card">
-        <img src="${it.gambar||''}" alt="${escapeHtml(it.nama||'Pelanggan')}" loading="lazy">
+      slide.innerHTML = `<div class="testimonial-card reveal" data-reveal>
+        <img src="${it.gambar||''}" alt="${escapeHtml(it.alt||it.nama||'Pelanggan')}" loading="lazy" decoding="async">
         <p><strong>${escapeHtml(it.nama||'')}</strong><br><small>${escapeHtml(it.jabatan||'')}</small></p>
       </div>`;
       t.appendChild(slide);
     });
   }
 
+  /* ====== Swipers ====== */
   function initSwipers(){
     if(heroSwiper) heroSwiper.destroy(true,true);
     heroSwiper = new Swiper('#swiperHero', {
@@ -627,11 +632,10 @@
     });
   }
 
-  // PROMO countdown + marquee + badge
+  /* ====== Promo countdown + marquee + badge ====== */
   function updateCountdowns(){
     const cards = $$('#productsGrid .card');
     let anyPromo=false;
-
     const now = new Date();
 
     cards.forEach(card=>{
@@ -640,12 +644,11 @@
       const oldEl = $('.old', card);
       const newEl = $('.new', card);
 
-      const start = card.dataset.start?.toString().trim() || '';
-      const end = card.dataset.end?.toString().trim() || '';
+      const start = (card.dataset.start||'').trim();
+      const end = (card.dataset.end||'').trim();
       const hargaAwal = card.dataset.hargaawal || '';
       const hargaDiskon = card.dataset.hargadiskon || '';
 
-      // status promo
       const {active, secondsLeft} = getPromoStatus(start, end, now);
 
       if(active && secondsLeft>0){
@@ -668,16 +671,7 @@
     document.documentElement.style.setProperty('--headerTop', anyPromo ? '36px' : '0px');
   }
 
-  function formatHMS(total){
-    const s = Math.max(0, Math.floor(total));
-    const h = Math.floor(s/3600);
-    const m = Math.floor((s%3600)/60);
-    const sec = s%60;
-    return `${pad(h)}j ${pad(m)}m ${pad(sec)}dtk`;
-  }
-  const pad = n => String(n).padStart(2,'0');
-
-  // CART
+  /* ====== Cart ====== */
   function addToCartFromCard(card){
     const id = card.dataset.id || ('tmp-'+Math.random().toString(36).slice(2,8));
     const name = card.querySelector('h3')?.innerText || 'Produk';
@@ -688,14 +682,12 @@
     else cart.push({id, name, price:priceNum, qty:1});
     updateCartUI();
   }
-
   function updateCartUI(){
     const count = cart.reduce((s,i)=>s+(i.qty||0),0);
     const badge = $('#cartBadge');
     if(count>0){ badge.style.display='inline-block'; badge.textContent = count; } else { badge.style.display='none'; }
     renderCartPanel();
   }
-
   function renderCartPanel(){
     const list = $('#cartItemsList'); list.innerHTML='';
     if(cart.length===0){ list.innerHTML='<p>Keranjang kosong</p>'; $('#cartTotal').textContent = 'Rp 0'; return; }
@@ -733,9 +725,9 @@
     updateCartUI();
   }
 
-  // UI & events
+  /* ====== UI & interactions ====== */
   function setupUI(){
-    // DARK mode (apply early & sync close button)
+    // DARK mode
     const darkOn = localStorage.getItem('dark')==='1';
     if(darkOn) document.body.classList.add('dark');
     syncCloseCartDark();
@@ -745,12 +737,12 @@
     $('#offLeftClose').addEventListener('click', ()=> { $('#offcanvasLeft').classList.remove('active'); $('#offcanvasLeft').setAttribute('aria-hidden','true'); });
     $$('.off-link').forEach(a=> a.addEventListener('click', ()=> $('#offcanvasLeft').classList.remove('active')));
 
-    // cart float
+    // Cart
     $('#cartFloat').addEventListener('click', ()=> { $('#cartPanel').classList.add('active'); $('#cartPanel').setAttribute('aria-hidden','false'); renderCartPanel(); });
     $('#closeCartPanel').addEventListener('click', ()=> { $('#cartPanel').classList.remove('active'); $('#cartPanel').setAttribute('aria-hidden','true'); });
     $('#clearCart').addEventListener('click', ()=> { cart=[]; updateCartUI(); });
 
-    // checkout
+    // Checkout
     $('#checkoutBtn').addEventListener('click', ()=>{
       if(!SETTINGS.wa){ alert('Nomor WhatsApp belum diatur di sheet Pengaturan.'); return; }
       if(cart.length===0){ alert('Keranjang masih kosong'); return; }
@@ -759,38 +751,43 @@
       window.open(`https://wa.me/${SETTINGS.wa}?text=${msg}`, '_blank');
     });
 
-    // dark toggle
+    // Dark toggle
     $('#darkToggle').addEventListener('click', ()=>{
       const on = document.body.classList.toggle('dark');
       localStorage.setItem('dark', on ? '1' : '0');
       syncCloseCartDark();
     });
 
-    // scroll to top
-    $('#scrollTopBtn').addEventListener('click', ()=> window.scrollTo({top:0,behavior:'smooth'}));
+    // Scroll to top visibility
+    const topBtn = $('#scrollTopBtn');
+    const checkTopBtn = ()=>{
+      if(window.scrollY > 200) topBtn.classList.add('visible');
+      else topBtn.classList.remove('visible');
+    };
+    window.addEventListener('scroll', checkTopBtn, {passive:true});
+    checkTopBtn();
+    topBtn.addEventListener('click', ()=> window.scrollTo({top:0,behavior:'smooth'}));
 
-    // zoom click
+    // Zoom
     document.body.addEventListener('click', (e)=>{
       const img = e.target.closest('img[data-zoom]');
       if(!img) return;
       openZoom(img.src, img.alt||'Gambar');
     });
-
-    // zoom controls
     $('#zoomClose').addEventListener('click', closeZoom);
     $('#zoomIn').addEventListener('click', ()=> setZoom(scale*1.2));
     $('#zoomOut').addEventListener('click', ()=> setZoom(scale/1.2));
     $('#zoomReset').addEventListener('click', ()=> { setZoom(1); setTranslate(0,0); });
+    $('#zoomOverlay').addEventListener('wheel',(e)=>{ e.preventDefault(); const d = e.deltaY>0 ? 0.9 : 1.1; setZoom(scale*d); }, {passive:false});
 
-    // zoom wheel
-    $('#zoomOverlay').addEventListener('wheel',(e)=>{ e.preventDefault(); const delta = e.deltaY>0 ? 0.9 : 1.1; setZoom(scale*delta); }, {passive:false});
-
-    // pan drag
     const zi = $('#zoomImg');
     zi.addEventListener('pointerdown', e=>{ e.preventDefault(); zi.setPointerCapture(e.pointerId); dragging=true; startX=e.clientX; startY=e.clientY; baseX=tx; baseY=ty; });
     zi.addEventListener('pointermove', e=>{ if(!dragging) return; setTranslate(baseX + (e.clientX-startX), baseY + (e.clientY-startY)); });
     zi.addEventListener('pointerup', ()=> dragging=false);
     zi.addEventListener('pointercancel', ()=> dragging=false);
+
+    // Reveal on view (lazy fade-in)
+    setupRevealObserver();
   }
 
   function syncCloseCartDark(){
@@ -798,7 +795,22 @@
     document.querySelectorAll('.close-cart').forEach(b=> b.classList.toggle('dark', on));
   }
 
-  // Zoom state
+  /* ====== Reveal (IntersectionObserver) ====== */
+  let revealObserver;
+  function setupRevealObserver(){
+    const opts = {root:null, rootMargin:'0px 0px -10% 0px', threshold:0.1};
+    revealObserver = new IntersectionObserver((entries, obs)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          entry.target.classList.add('show');
+          obs.unobserve(entry.target);
+        }
+      });
+    }, opts);
+    $$('[data-reveal]').forEach(el=> revealObserver.observe(el));
+  }
+
+  /* ====== Zoom state ====== */
   let scale=1, tx=0, ty=0, dragging=false, startX=0, startY=0, baseX=0, baseY=0;
   function openZoom(src, alt=''){
     const ov = $('#zoomOverlay'), img = $('#zoomImg');
@@ -810,20 +822,16 @@
   function setZoom(v){ scale = Math.max(1, Math.min(6, v)); $('#zoomImg').style.setProperty('--scale', scale); }
   function setTranslate(x,y){ tx = x; ty = y; $('#zoomImg').style.setProperty('--tx', tx+'px'); $('#zoomImg').style.setProperty('--ty', y+'px'); }
 
-  // INIT
+  /* ====== INIT ====== */
   (async function init(){
     showLoading(true);
-
-    // early dark apply (agar tidak flicker)
     if(localStorage.getItem('dark')==='1') document.body.classList.add('dark');
 
     try{
-      // fetch settings
       const settingsRows = await fetchSheet('Pengaturan').catch(()=>[]);
       SETTINGS = rowsToMap(settingsRows);
       applySettings(SETTINGS);
 
-      // fetch others parallel
       const [slidesRows, productsRows, galleryRows, testiRows] = await Promise.all([
         fetchSheet('Slider').catch(()=>[]),
         fetchSheet('Produk').catch(()=>[]),
@@ -844,9 +852,9 @@
       initSwipers();
       setupUI();
 
-      // countdown ticker
-      setInterval(updateCountdowns, 1000);
+      // Countdown loop (FIX)
       updateCountdowns();
+      setInterval(updateCountdowns, 1000);
 
     } catch(err){
       console.error('Init error', err);
@@ -855,8 +863,6 @@
       showLoading(false);
     }
   })();
-
-  document.addEventListener('DOMContentLoaded', ()=>{ /* reserved */ });
   </script>
 </body>
 </html>
