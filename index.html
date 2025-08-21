@@ -748,9 +748,9 @@
           <div style="font-size:.9rem;color:var(--muted)">Rp ${formatRupiah(it.price)} / pcs</div>
         </div>
         <div class="qty-controls" data-id="${it.id}">
-          <button data-change="-1" aria-label="Kurangi">−</button>
-          <span style="font-weight:800">${it.qty}</span>
-          <button data-change="1" aria-label="Tambah">+</button>
+          <button class="qty-btn" data-change="-1" aria-label="Kurangi">−</button>
+          <input type="number" value="${it.qty}" class="qty-input" style="width:45px;text-align:center;font-weight:800">
+          <button class="qty-btn" data-change="1" aria-label="Tambah">+</button>
         </div>
       `;
       list.appendChild(row);
@@ -760,6 +760,18 @@
       btn.removeEventListener('click', onQtyBtnClick);
       btn.addEventListener('click', onQtyBtnClick);
     });
+    list.querySelectorAll('.qty-input').forEach(inp=>{
+    inp.addEventListener('change', ()=>{
+      const id = inp.closest('.qty-controls').dataset.id;
+      const item = cart.find(i=>i.id===id);
+      if(item){
+        const v = parseInt(inp.value,10);
+        item.qty = isNaN(v) || v<=0 ? 1 : v;
+        updateCartUI();
+        }
+      });
+    });
+
   }
   function onQtyBtnClick(e){
     const btn = e.currentTarget;
