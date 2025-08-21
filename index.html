@@ -20,6 +20,10 @@
     /* (CSS same seperti versi sebelumnya — dipersingkat di sini agar jawaban fokus pada JS yang diperbaiki) */
     :root{--primary:#121212;--accent:#ffd700;--bg:#fff;--card:#fff;--text:#222;--muted:#777;--border:#e9e9e9;--maxw:1200px;--headerTop:0px}
     body.dark{--primary:#0b0b0b;--bg:#0a0a0a;--card:#111;--text:#eaeaea;--muted:#a1a1a1;--border:#222}
+    body.dark-mode .qty-btn {background: #fff;color: #000;border: 1px solid #ccc;}
+    .note-ongkir {font-size: 0.9em;color: #888;margin-top: 5px;}
+    body.dark-mode .note-ongkir {color: #ccc;}
+
     *{box-sizing:border-box} html,body{height:100%} body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
     a{color:inherit;text-decoration:none} img{max-width:100%;display:block}
     /* ... semua style dari versi sebelumnya tetap disalin di sini ... */
@@ -270,6 +274,7 @@
     <div id="cartItemsList" style="overflow:auto;max-height:60vh"></div>
     <div style="display:flex;justify-content:space-between;align-items:center">
       <strong>Total:</strong><div id="cartTotal">Rp 0</div>
+      <p class="note-ongkir">* Harga belum termasuk ongkir dari Lamongan</p>
     </div>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
       <button id="clearCart" class="btn">Kosongkan</button>
@@ -344,16 +349,14 @@
   function normalizeHM(s){ return String(s||'').trim().replace(/[.]/g,':'); }
   function parseHM(str){
   if(!str) return null;
-  const parts = str.split(':').map(p => parseInt(p,10));
-  if(parts.length < 2 || isNaN(parts[0]) || isNaN(parts[1])) return null;
-
-  return {
-    h: parts[0],
-    m: parts[1],
-    s: parts.length >= 3 && !isNaN(parts[2]) ? parts[2] : 0
-  };
+  const parts = String(str).trim().split(':').map(x=>parseInt(x,10));
+  if(parts.length < 2) return null; 
+  const h = parts[0];
+  const m = parts[1] || 0;
+  const s = parts[2] || 0;
+  if(isNaN(h) || isNaN(m) || isNaN(s)) return null;
+  return {h,m,s};
 }
-
 
   function tryParseDateTime(str){
     if(!str) return null;
