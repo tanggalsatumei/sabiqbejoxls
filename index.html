@@ -398,7 +398,9 @@
 
   // --- Absolute datetime (punya tanggal) ---
   if((sDT || eDT) && (containsDate(sStr) || containsDate(eStr))){
-    const nowMs = Date.now();
+    const partsNow = getTZPartsNow(TZONE);
+    const nowMs = tzWallClockToEpochMs(TZONE, partsNow.year, partsNow.month, partsNow.day, partsNow.hour, partsNow.minute, partsNow.second);
+
     let startMs = sDT ? sDT.getTime() : nowMs;
     let endMs   = eDT ? eDT.getTime() : (sDT ? sDT.getTime()+24*3600*1000 : nowMs);
     const active = nowMs >= startMs && nowMs <= endMs;
