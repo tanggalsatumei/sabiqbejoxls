@@ -68,6 +68,8 @@
     .img-wrapper{position:relative;width:100%;max-width:260px;margin:0 auto}
     .img-wrapper img{width:100%;display:block;aspect-ratio:1/1;object-fit:cover;border-radius:10px;cursor:zoom-in;opacity:0;transform:translateY(8px);transition:opacity .45s ease, transform .45s ease}
     .img-wrapper img.show{opacity:1;transform:none}
+    .product-desc{font-size:0.95rem;color:var(--muted);margin:6px 0 10px 0;text-align:center}
+    .card h3{margin:8px 0 6px 0}
     .promo-label{position:absolute;top:10px;left:10px;background:red;color:#000;padding:6px 8px;font-weight:800;border-radius:8px;display:none;z-index:8;font-size:.85rem}
     .countdown-overlay{position:absolute;bottom:0;left:0;width:100%;background:rgba(255,215,0,0.98);color:#000;font-weight:800;padding:6px 6px;text-align:center;border-bottom-left-radius:10px;border-bottom-right-radius:10px;z-index:9;display:none}
     .card h3{margin:10px 0 4px 0;text-align:center}
@@ -250,12 +252,12 @@
         <p><strong>Alamat:</strong> <span id="footer-address">-</span></p>
         <p><strong>Jam Buka:</strong> <span id="footer-hours">-</span></p>
         <p><strong>Kontak:</strong> <a id="footer-wa" href="#" target="_blank" rel="noopener">WhatsApp</a></p>
-        <div style="margin-top:12px;font-size:.9rem">
-          <a href="/tos.html" style="color:var(--accent);margin-right:12px">Syarat & Ketentuan</a>
-          <a href="/privacy.html" style="color:var(--accent);margin-right:12px">Kebijakan Privasi</a>
-          <a href="/refund.html" style="color:var(--accent)">Kebijakan Pengembalian</a>
-        </div>
-
+        <!-- di footer, tambahkan baris link -->
+        <p style="margin-top:8px">
+          <a href="#" id="tosLink" style="color:var(--accent);text-decoration:underline;cursor:pointer">Syarat & Ketentuan</a> ·
+          <a href="#" id="privacyLink" style="color:var(--accent);text-decoration:underline;cursor:pointer">Kebijakan Privasi</a> ·
+          <a href="#" id="refundLink" style="color:var(--accent);text-decoration:underline;cursor:pointer">Kebijakan Pengembalian</a>
+        </p>
       </div>
     </div>
   </footer>
@@ -491,20 +493,20 @@
 
     let promostart='', promoend='';
 
-    // --- Validasi default ---
     if(tglStart && !tglEnd) {
-      // kalau hanya start date → end = start date
       promostart = `${tglStart} ${jamStart||'00:00'}`;
       promoend   = `${tglStart} ${jamEnd||'23:59'}`;
     } else if(!tglStart && !tglEnd) {
-      // kalau hanya jam → jam-only
       promostart = jamStart || '';
       promoend   = jamEnd || '';
     } else {
-      // kalau start & end date ada
       promostart = `${tglStart||''} ${jamStart||'00:00'}`.trim();
       promoend   = `${tglEnd||tglStart||''} ${jamEnd||'23:59'}`.trim();
     }
+
+    const rawStatus = String(getAny(r,['aktif','status','is_active'])).trim().toLowerCase();
+    // treat explicit 'no','n','false','0' as inactive, otherwise active (default yes)
+    const aktif = !(rawStatus === 'no' || rawStatus === 'n' || rawStatus === 'false' || rawStatus === '0');
 
     return {
       id: getAny(r,['id','ID','Id']) || 'p'+i,
@@ -515,15 +517,11 @@
       hargadiskon: getAny(r,['hargadiskon','harga diskon','hargadisc','diskon']),
       promostart,
       promoend,
-      deskripsi: getAny(r, ['deskripsi','desc','keterangan','description']) || ''
-      aktif: (String(getAny(r, ['aktif','active'])).toLowerCase() || 'yes') === 'yes' 
-       && (String(getAny(r, ['status'])).toLowerCase() || 'yes') === 'yes'
-
+      desc: getAny(r,['deskripsi','description','desc','keterangan','keterangan produk']) || '',
+      aktif: aktif
     };
   });
 }
-
-
 
   function normalizeGallery(rows){
     return (rows||[]).map(r=>({
@@ -598,48 +596,58 @@
   }
 
   function renderProducts(){
-    const grid = $('#productsGrid'); grid.innerHTML = '';
-    if(!PRODUCTS.length){ grid.innerHTML = '<p>Tidak ada produk</p>'; return; }
-    PRODUCTS.forEach(p=>{
-      const card = document.createElement('div'); card.className='card'; if(!p.aktif) card.style.opacity='.6';
-      card.dataset.id = p.id || '';
-      card.dataset.start = p.promostart || '';
-      card.dataset.end = p.promoend || '';
-      card.dataset.hargaawal = p.hargaawal || '';
-      card.dataset.hargadiskon = p.hargadiskon || '';
+  const grid = $('#productsGrid'); grid.innerHTML = '';
+  if(!PRODUCTS.length){ grid.innerHTML = '<p>Tidak ada produk</p>'; return; }
+  PRODUCTS.forEach(p=>{
+    if(!p.aktif) return; // safety (seharusnya sudah terfilter)
+    const card = document.createElement('div'); card.className='card'; 
+    card.dataset.id = p.id || '';
+    card.dataset.start = p.promostart || '';
+    card.dataset.end = p.promoend || '';
+    card.dataset.hargaawal = p.hargaawal || '';
+    card.dataset.hargadiskon = p.hargadiskon || '';
 
-      const promoLabel = document.createElement('div'); promoLabel.className='promo-label'; promoLabel.textContent='PROMO'; card.appendChild(promoLabel);
+    const promoLabel = document.createElement('div'); promoLabel.className='promo-label'; promoLabel.textContent='PROMO'; card.appendChild(promoLabel);
 
-      const iw = document.createElement('div'); iw.className='img-wrapper';
-      const img = document.createElement('img');
-      img.src = p.gbr || 'https://via.placeholder.com/400x400?text=No+Image';
-      img.alt = p.alt || p.nama || 'Produk';
-      img.loading='lazy'; img.decoding='async'; img.setAttribute('data-zoom','1');
-      iw.appendChild(img);
+    const iw = document.createElement('div'); iw.className='img-wrapper';
+    const img = document.createElement('img');
+    img.src = p.gbr || 'https://via.placeholder.com/400x400?text=No+Image';
+    img.alt = p.alt || p.nama || 'Produk';
+    img.loading='lazy'; img.decoding='async'; img.setAttribute('data-zoom','1');
+    iw.appendChild(img);
 
-      const co = document.createElement('div'); co.className='countdown-overlay'; co.style.display='none'; co.setAttribute('aria-live','polite'); iw.appendChild(co);
-      card.appendChild(iw);
+    const co = document.createElement('div'); co.className='countdown-overlay'; co.style.display='none'; co.setAttribute('aria-live','polite'); iw.appendChild(co);
+    card.appendChild(iw);
 
-      const title = document.createElement('h3'); title.textContent = p.nama; card.appendChild(title);
-      const desc = document.createElement('p');
-      desc.textContent = p.deskripsi || '';
-      desc.style.fontSize = '0.9rem';
-      desc.style.color = 'var(--muted)';
-      card.appendChild(desc);
+    const title = document.createElement('h3'); title.textContent = p.nama; card.appendChild(title);
 
-      const priceWrap = document.createElement('div'); priceWrap.className='price';
-      const old = document.createElement('span'); old.className='old'; old.textContent = 'Rp ' + formatRupiah(p.hargaawal);
-      const neu = document.createElement('span'); neu.className='new'; neu.textContent = 'Rp ' + formatRupiah(p.hargadiskon || p.hargaawal);
-      priceWrap.appendChild(old); priceWrap.appendChild(neu);
-      card.appendChild(priceWrap);
+    // Deskripsi (tampil singkat di index / preview)
+    if(p.desc){
+      const descEl = document.createElement('p');
+      descEl.className = 'product-desc';
+      // batasi panjang preview (misal 110 karakter)
+      const preview = String(p.desc).trim();
+      descEl.textContent = preview.length > 110 ? preview.slice(0,110)+'…' : preview;
+      card.appendChild(descEl);
 
-      const btn = document.createElement('button'); btn.className='btn'; btn.textContent='Tambah ke Keranjang';
-      btn.addEventListener('click', ()=> addToCartFromCard(card));
-      card.appendChild(btn);
+      // optional: data attribute full desc for modal/zoom detail
+      card.dataset.fulldesc = String(p.desc);
+    }
 
-      grid.appendChild(card);
-    });
-  }
+    const priceWrap = document.createElement('div'); priceWrap.className='price';
+    const old = document.createElement('span'); old.className='old'; old.textContent = 'Rp ' + formatRupiah(p.hargaawal);
+    const neu = document.createElement('span'); neu.className='new'; neu.textContent = 'Rp ' + formatRupiah(p.hargadiskon || p.hargaawal);
+    priceWrap.appendChild(old); priceWrap.appendChild(neu);
+    card.appendChild(priceWrap);
+
+    const btn = document.createElement('button'); btn.className='btn'; btn.textContent='Tambah ke Keranjang';
+    btn.addEventListener('click', ()=> addToCartFromCard(card));
+    card.appendChild(btn);
+
+    grid.appendChild(card);
+  });
+}
+
 
   function renderGallery(){
     const g = $('#galleryGrid'); g.innerHTML = '';
@@ -908,6 +916,8 @@
 
       SLIDES = normalizeSlides(slidesRows);
       PRODUCTS = normalizeProducts(productsRows);
+      // Hilangkan produk yang tidak aktif (status = no)
+      PRODUCTS = PRODUCTS.filter(p => !!p.aktif);
       GALLERY = normalizeGallery(galleryRows);
       TESTIS = normalizeTestis(testiRows);
 
@@ -938,6 +948,91 @@
       showLoading(false);
     }
   })();
+
+    // -- Isi standar (bahasa Indonesia) --
+    const LEGAL_TEXT = {
+      tos: {
+        title: 'Syarat & Ketentuan',
+        content: `
+          <p><strong>Selamat datang di Sabiq Bejo.</strong></p>
+          <p>Dengan mengakses dan menggunakan situs ini, Anda menyetujui syarat dan ketentuan berikut. Mohon baca dengan teliti:</p>
+          <ol>
+            <li><strong>Penggunaan Layanan.</strong> Anda setuju menggunakan layanan ini sesuai hukum yang berlaku dan tidak menyalahgunakan konten.</li>
+            <li><strong>Pemesanan & Pembayaran.</strong> Pesanan diproses berdasarkan ketersediaan stok. Pembayaran dilakukan sesuai metode yang tersedia (WhatsApp ordering pada implementasi ini).</li>
+            <li><strong>Harga & Promo.</strong> Harga dapat berubah sewaktu-waktu. Promo memiliki syarat dan periode berlaku yang ditentukan di sheet.</li>
+            <li><strong>Tanggung Jawab.</strong> Kami tidak bertanggung jawab atas kesalahan input alamat oleh pengguna atau keterlambatan kurir di luar kendali kami.</li>
+            <li><strong>Perubahan.</strong> Kami berhak mengubah syarat ini kapan saja. Perubahan akan berlaku setelah dipublikasikan di situs.</li>
+          </ol>
+          <p>Jika ada pertanyaan, hubungi kontak pada footer.</p>
+        `
+      },
+      privacy: {
+        title: 'Kebijakan Privasi',
+        content: `
+          <p>Kami menjaga privasi pengunjung. Intinya:</p>
+          <ol>
+            <li><strong>Data yang Dikumpulkan.</strong> Kami dapat mengumpulkan data kontak (nomor WA), data pemesanan, dan data teknis (cookie untuk fungsionalitas dasar).</li>
+            <li><strong>Tujuan Pemakaian.</strong> Data digunakan untuk memproses pesanan, komunikasi, dan peningkatan layanan.</li>
+            <li><strong>Penyimpanan & Keamanan.</strong> Kami menyimpan data dengan langkah-langkah dasar pengamanan; namun tidak menjamin keamanan mutlak dari pihak ketiga.</li>
+            <li><strong>Pembagian Data.</strong> Data tidak akan dibagikan ke pihak ketiga kecuali untuk keperluan pengiriman atau permintaan hukum.</li>
+          </ol>
+          <p>Dengan menggunakan situs ini, Anda menyetujui pengumpulan dan penggunaan sesuai kebijakan ini.</p>
+        `
+      },
+      refund: {
+        title: 'Kebijakan Pengembalian & Refund',
+        content: `
+          <p>Kebijakan pengembalian singkat:</p>
+          <ol>
+            <li>Produk yang sudah dikirim tidak dapat dikembalikan kecuali terdapat kerusakan atau kesalahan produk dari pihak kami.</li>
+            <li>Jika ada kerusakan, silakan kirim bukti foto ke kontak WA pada footer dalam waktu 48 jam setelah barang diterima.</li>
+            <li>Pengembalian dana (refund) akan diproses setelah verifikasi, dan dapat memakan waktu beberapa hari kerja.</li>
+          </ol>
+          <p>Untuk bantuan, hubungi kontak kami.</p>
+        `
+      }
+    };
+    
+    // fungsi membuka modal
+    function openLegal(type){
+      const overlay = document.getElementById('legalOverlay');
+      const title = document.getElementById('legalTitle');
+      const content = document.getElementById('legalContent');
+      const data = LEGAL_TEXT[type] || {title:'', content:''};
+      title.innerHTML = data.title;
+      content.innerHTML = data.content;
+      overlay.style.display = 'flex';
+      overlay.setAttribute('aria-hidden','false');
+      // scroll to top of modal content
+      document.getElementById('legalModal').scrollTop = 0;
+    }
+    // close
+    document.getElementById('legalClose').addEventListener('click', ()=>{
+      document.getElementById('legalOverlay').style.display = 'none';
+      document.getElementById('legalOverlay').setAttribute('aria-hidden','true');
+    });
+    // close overlay by click outside modal
+    document.getElementById('legalOverlay').addEventListener('click', (e)=>{
+      if(e.target === document.getElementById('legalOverlay')){
+        document.getElementById('legalOverlay').style.display = 'none';
+        document.getElementById('legalOverlay').setAttribute('aria-hidden','true');
+      }
+    });
+    
+    // attach to footer links
+    document.getElementById('tosLink')?.addEventListener('click', (e)=>{ e.preventDefault(); openLegal('tos'); });
+    document.getElementById('privacyLink')?.addEventListener('click', (e)=>{ e.preventDefault(); openLegal('privacy'); });
+    document.getElementById('refundLink')?.addEventListener('click', (e)=>{ e.preventDefault(); openLegal('refund'); });
+
   </script>
+  <!-- LEGAL MODAL -->
+  <div id="legalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:30000;align-items:center;justify-content:center;">
+    <div id="legalModal" style="width:calc(100% - 40px);max-width:900px;background:var(--card);color:var(--text);border-radius:10px;padding:18px;box-shadow:0 8px 40px rgba(0,0,0,.4);max-height:80vh;overflow:auto;position:relative;">
+      <button id="legalClose" style="position:absolute;top:10px;right:10px;background:var(--accent);border:0;padding:8px 10px;border-radius:8px;cursor:pointer;font-weight:800">Tutup</button>
+      <h2 id="legalTitle" style="margin-top:4px">Judul</h2>
+      <div id="legalContent" style="line-height:1.6;margin-top:10px;color:var(--muted)"></div>
+    </div>
+  </div>
+
 </body>
 </html>
