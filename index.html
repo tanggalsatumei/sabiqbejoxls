@@ -63,6 +63,7 @@
     h2.section-title{font-size:1.35rem;margin:0 0 12px 0;color:var(--text)}
     .products-grid{display:grid;grid-template-columns:1fr;gap:16px}
     @media(min-width:600px){ .products-grid{grid-template-columns:repeat(2,1fr)} }
+    @media(max-width:600px){ .header-bar {justify-content: center;} .header-bar nav { display:none; }}
     @media(min-width:900px){ .products-grid{grid-template-columns:repeat(3,1fr)} }
     .card{border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--card);display:flex;flex-direction:column;align-items:center;position:relative;overflow:visible}
     .img-wrapper{position:relative;width:100%;max-width:260px;margin:0 auto}
@@ -153,10 +154,10 @@
         <div class="logo">
           <img id="site-logo" src="https://img.icons8.com/emoji/48/egg-emoji.png" alt="Logo Toko">
           <div>
-            <div id="brand-name">Sabiq Bejo</div>
+            <a href="/" id="brand-name" style="color:var(--accent);text-decoration:none">Sabiq Bejo</a>
             <div id="brand-sub" style="font-size:.85rem;color:var(--muted)"></div>
           </div>
-        </div>
+        </div>  
       </div>
 
       <nav>
@@ -847,8 +848,17 @@
     document.body.addEventListener('click', (e)=>{
       const img = e.target.closest('img[data-zoom]');
       if(!img) return;
-      openZoom(img.src, img.alt||'Gambar');
+    
+      const card = img.closest('.card');
+      if(card && card.dataset.fulldesc){
+        // kalau gambar produk → buka modal produk (full desc)
+        openProductModal(card);
+      } else {
+        // kalau gambar galeri/testimoni → tetap zoom
+        openZoom(img.src, img.alt||'Gambar');
+      }
     });
+
     $('#zoomClose').addEventListener('click', closeZoom);
     $('#zoomIn').addEventListener('click', ()=> setZoom(scale*1.2));
     $('#zoomOut').addEventListener('click', ()=> setZoom(scale/1.2));
@@ -896,6 +906,26 @@
   function closeZoom(){ const ov=$('#zoomOverlay'); ov.classList.remove('show'); ov.style.display='none'; ov.setAttribute('aria-hidden','true'); }
   function setZoom(v){ scale = Math.max(1, Math.min(6, v)); $('#zoomImg').style.setProperty('--scale', scale); }
   function setTranslate(x,y){ tx = x; ty = y; $('#zoomImg').style.setProperty('--tx', tx+'px'); $('#zoomImg').style.setProperty('--ty', y+'px'); }
+  function openProductModal(card){
+    const overlay = document.getElementById('productOverlay');
+    document.getElementById('productTitle').textContent = card.querySelector('h3')?.textContent || 'Produk';
+    document.getElementById('productImage').src = card.querySelector('img')?.src || '';
+    document.getElementById('productDesc').textContent = card.dataset.fulldesc || '';
+    overlay.style.display = 'flex';
+    overlay.setAttribute('aria-hidden','false');
+  }
+  
+  document.getElementById('productClose').addEventListener('click', ()=>{
+    document.getElementById('productOverlay').style.display = 'none';
+    document.getElementById('productOverlay').setAttribute('aria-hidden','true');
+  });
+  
+  document.getElementById('productOverlay').addEventListener('click', (e)=>{
+    if(e.target === document.getElementById('productOverlay')){
+      document.getElementById('productOverlay').style.display = 'none';
+      document.getElementById('productOverlay').setAttribute('aria-hidden','true');
+    }
+  });
 
   /* ====== INIT ====== */
   (async function init(){
@@ -1035,4 +1065,14 @@
     <div id="legalContent" style="line-height:1.6;margin-top:10px;color:var(--muted)"></div>
   </div>
 </div>
+<!-- PRODUCT DETAIL MODAL -->
+<div id="productOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:25000;align-items:center;justify-content:center;">
+  <div id="productModal" style="width:calc(100% - 40px);max-width:700px;background:var(--card);color:var(--text);border-radius:10px;padding:18px;box-shadow:0 8px 40px rgba(0,0,0,.4);max-height:80vh;overflow:auto;position:relative;">
+    <button id="productClose" style="position:absolute;top:10px;right:10px;background:var(--accent);border:0;padding:8px 10px;border-radius:8px;cursor:pointer;font-weight:800">Tutup</button>
+    <h2 id="productTitle" style="margin-top:4px"></h2>
+    <img id="productImage" src="" alt="" style="width:100%;border-radius:8px;margin:10px 0">
+    <div id="productDesc" style="line-height:1.6;margin-top:10px;color:var(--muted)"></div>
+  </div>
+</div>
+
 </html>
