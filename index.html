@@ -1036,26 +1036,35 @@
     });
     </script>
     <script>
-      function openProductModal(card){
-        const overlay = document.getElementById('productOverlay');
-        document.getElementById('productTitle').textContent = card.querySelector('h3')?.textContent || 'Produk';
-        document.getElementById('productImage').src = card.querySelector('img')?.src || '';
-        document.getElementById('productDesc').textContent = card.dataset.fulldesc || '';
-        overlay.style.display = 'flex';
-        overlay.setAttribute('aria-hidden','false');
-      }
-      
-      document.getElementById('productClose').addEventListener('click', ()=>{
+    // === PRODUCT MODAL SCRIPT ===
+    function openProductModal(card){
+      const overlay = document.getElementById('productOverlay');
+      document.getElementById('productTitle').textContent = card.querySelector('h3')?.textContent || 'Produk';
+      document.getElementById('productImage').src = card.querySelector('img')?.src || '';
+      document.getElementById('productDesc').textContent = card.dataset.fulldesc || '';
+      overlay.style.display = 'flex';
+    }
+    
+    document.getElementById('productClose').addEventListener('click', ()=>{
+      document.getElementById('productOverlay').style.display = 'none';
+    });
+    
+    document.getElementById('productOverlay').addEventListener('click', (e)=>{
+      if(e.target === document.getElementById('productOverlay')){
         document.getElementById('productOverlay').style.display = 'none';
-        document.getElementById('productOverlay').setAttribute('aria-hidden','true');
-      });
-      
-      document.getElementById('productOverlay').addEventListener('click', (e)=>{
-        if(e.target === document.getElementById('productOverlay')){
-          document.getElementById('productOverlay').style.display = 'none';
-          document.getElementById('productOverlay').setAttribute('aria-hidden','true');
-        }
-      });
+      }
+    });
+    
+    // Ganti event klik gambar produk → buka modal produk
+    document.body.addEventListener('click', (e)=>{
+      const img = e.target.closest('img[data-zoom]');
+      if(!img) return;
+      const card = img.closest('.card');
+      if(card && card.dataset.fulldesc){
+        e.preventDefault();
+        openProductModal(card);
+      }
+    });
     </script>
 
 </body>
@@ -1071,10 +1080,9 @@
 <div id="productOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:25000;align-items:center;justify-content:center;">
   <div id="productModal" style="width:calc(100% - 40px);max-width:700px;background:var(--card);color:var(--text);border-radius:10px;padding:18px;box-shadow:0 8px 40px rgba(0,0,0,.4);max-height:80vh;overflow:auto;position:relative;">
     <button id="productClose" style="position:absolute;top:10px;right:10px;background:var(--accent);border:0;padding:8px 10px;border-radius:8px;cursor:pointer;font-weight:800">Tutup</button>
-    <h2 id="productTitle" style="margin-top:4px"></h2>
+    <h2 id="productTitle"></h2>
     <img id="productImage" src="" alt="" style="width:100%;border-radius:8px;margin:10px 0">
     <div id="productDesc" style="line-height:1.6;margin-top:10px;color:var(--muted)"></div>
   </div>
 </div>
-
 </html>
