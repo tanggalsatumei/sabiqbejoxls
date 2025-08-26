@@ -250,6 +250,12 @@
         <p><strong>Alamat:</strong> <span id="footer-address">-</span></p>
         <p><strong>Jam Buka:</strong> <span id="footer-hours">-</span></p>
         <p><strong>Kontak:</strong> <a id="footer-wa" href="#" target="_blank" rel="noopener">WhatsApp</a></p>
+        <div style="margin-top:12px;font-size:.9rem">
+          <a href="/tos.html" style="color:var(--accent);margin-right:12px">Syarat & Ketentuan</a>
+          <a href="/privacy.html" style="color:var(--accent);margin-right:12px">Kebijakan Privasi</a>
+          <a href="/refund.html" style="color:var(--accent)">Kebijakan Pengembalian</a>
+        </div>
+
       </div>
     </div>
   </footer>
@@ -509,7 +515,10 @@
       hargadiskon: getAny(r,['hargadiskon','harga diskon','hargadisc','diskon']),
       promostart,
       promoend,
-      aktif: (String(getAny(r,['aktif','active'])).toLowerCase() || 'yes') === 'yes'
+      deskripsi: getAny(r, ['deskripsi','desc','keterangan','description']) || ''
+      aktif: (String(getAny(r, ['aktif','active'])).toLowerCase() || 'yes') === 'yes' 
+       && (String(getAny(r, ['status'])).toLowerCase() || 'yes') === 'yes'
+
     };
   });
 }
@@ -612,6 +621,11 @@
       card.appendChild(iw);
 
       const title = document.createElement('h3'); title.textContent = p.nama; card.appendChild(title);
+      const desc = document.createElement('p');
+      desc.textContent = p.deskripsi || '';
+      desc.style.fontSize = '0.9rem';
+      desc.style.color = 'var(--muted)';
+      card.appendChild(desc);
 
       const priceWrap = document.createElement('div'); priceWrap.className='price';
       const old = document.createElement('span'); old.className='old'; old.textContent = 'Rp ' + formatRupiah(p.hargaawal);
