@@ -992,39 +992,40 @@
         `
       }
     };
+    </script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function(){
+      // fungsi openLegal tetap sama
+      function openLegal(type){
+        const overlay = document.getElementById('legalOverlay');
+        const title = document.getElementById('legalTitle');
+        const content = document.getElementById('legalContent');
+        const data = LEGAL_TEXT[type] || {title:'', content:''};
+        title.innerHTML = data.title;
+        content.innerHTML = data.content;
+        overlay.style.display = 'flex';
+        overlay.setAttribute('aria-hidden','false');
+        document.getElementById('legalModal').scrollTop = 0;
+      }
     
-    // fungsi membuka modal
-    function openLegal(type){
-      const overlay = document.getElementById('legalOverlay');
-      const title = document.getElementById('legalTitle');
-      const content = document.getElementById('legalContent');
-      const data = LEGAL_TEXT[type] || {title:'', content:''};
-      title.innerHTML = data.title;
-      content.innerHTML = data.content;
-      overlay.style.display = 'flex';
-      overlay.setAttribute('aria-hidden','false');
-      // scroll to top of modal content
-      document.getElementById('legalModal').scrollTop = 0;
-    }
-    // close
-    document.getElementById('legalClose').addEventListener('click', ()=>{
-      document.getElementById('legalOverlay').style.display = 'none';
-      document.getElementById('legalOverlay').setAttribute('aria-hidden','true');
-    });
-    // close overlay by click outside modal
-    document.getElementById('legalOverlay').addEventListener('click', (e)=>{
-      if(e.target === document.getElementById('legalOverlay')){
+      document.getElementById('legalClose').addEventListener('click', ()=>{
         document.getElementById('legalOverlay').style.display = 'none';
         document.getElementById('legalOverlay').setAttribute('aria-hidden','true');
-      }
-    });
+      });
     
-    // attach to footer links
-    document.getElementById('tosLink')?.addEventListener('click', (e)=>{ e.preventDefault(); openLegal('tos'); });
-    document.getElementById('privacyLink')?.addEventListener('click', (e)=>{ e.preventDefault(); openLegal('privacy'); });
-    document.getElementById('refundLink')?.addEventListener('click', (e)=>{ e.preventDefault(); openLegal('refund'); });
+      document.getElementById('legalOverlay').addEventListener('click', (e)=>{
+        if(e.target === document.getElementById('legalOverlay')){
+          document.getElementById('legalOverlay').style.display = 'none';
+          document.getElementById('legalOverlay').setAttribute('aria-hidden','true');
+        }
+      });
+    
+      document.getElementById('tosLink').addEventListener('click', (e)=>{ e.preventDefault(); openLegal('tos'); });
+      document.getElementById('privacyLink').addEventListener('click', (e)=>{ e.preventDefault(); openLegal('privacy'); });
+      document.getElementById('refundLink').addEventListener('click', (e)=>{ e.preventDefault(); openLegal('refund'); });
+    });
+    </script>
 
-  </script>
 </body>
 <!-- LEGAL MODAL -->
 <div id="legalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:30000;align-items:center;justify-content:center;">
