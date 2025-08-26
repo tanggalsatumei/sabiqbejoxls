@@ -906,27 +906,7 @@
   function closeZoom(){ const ov=$('#zoomOverlay'); ov.classList.remove('show'); ov.style.display='none'; ov.setAttribute('aria-hidden','true'); }
   function setZoom(v){ scale = Math.max(1, Math.min(6, v)); $('#zoomImg').style.setProperty('--scale', scale); }
   function setTranslate(x,y){ tx = x; ty = y; $('#zoomImg').style.setProperty('--tx', tx+'px'); $('#zoomImg').style.setProperty('--ty', y+'px'); }
-  function openProductModal(card){
-    const overlay = document.getElementById('productOverlay');
-    document.getElementById('productTitle').textContent = card.querySelector('h3')?.textContent || 'Produk';
-    document.getElementById('productImage').src = card.querySelector('img')?.src || '';
-    document.getElementById('productDesc').textContent = card.dataset.fulldesc || '';
-    overlay.style.display = 'flex';
-    overlay.setAttribute('aria-hidden','false');
-  }
   
-  document.getElementById('productClose').addEventListener('click', ()=>{
-    document.getElementById('productOverlay').style.display = 'none';
-    document.getElementById('productOverlay').setAttribute('aria-hidden','true');
-  });
-  
-  document.getElementById('productOverlay').addEventListener('click', (e)=>{
-    if(e.target === document.getElementById('productOverlay')){
-      document.getElementById('productOverlay').style.display = 'none';
-      document.getElementById('productOverlay').setAttribute('aria-hidden','true');
-    }
-  });
-
   /* ====== INIT ====== */
   (async function init(){
     showLoading(true);
@@ -1054,6 +1034,28 @@
       document.getElementById('privacyLink').addEventListener('click', (e)=>{ e.preventDefault(); openLegal('privacy'); });
       document.getElementById('refundLink').addEventListener('click', (e)=>{ e.preventDefault(); openLegal('refund'); });
     });
+    </script>
+    <script>
+      function openProductModal(card){
+        const overlay = document.getElementById('productOverlay');
+        document.getElementById('productTitle').textContent = card.querySelector('h3')?.textContent || 'Produk';
+        document.getElementById('productImage').src = card.querySelector('img')?.src || '';
+        document.getElementById('productDesc').textContent = card.dataset.fulldesc || '';
+        overlay.style.display = 'flex';
+        overlay.setAttribute('aria-hidden','false');
+      }
+      
+      document.getElementById('productClose').addEventListener('click', ()=>{
+        document.getElementById('productOverlay').style.display = 'none';
+        document.getElementById('productOverlay').setAttribute('aria-hidden','true');
+      });
+      
+      document.getElementById('productOverlay').addEventListener('click', (e)=>{
+        if(e.target === document.getElementById('productOverlay')){
+          document.getElementById('productOverlay').style.display = 'none';
+          document.getElementById('productOverlay').setAttribute('aria-hidden','true');
+        }
+      });
     </script>
 
 </body>
