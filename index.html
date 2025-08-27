@@ -83,12 +83,14 @@
     .testimonial-card{background:var(--card);padding:12px;border-radius:12px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.06)}
     .testimonial-card img{width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:8px;cursor:zoom-in;opacity:0;transform:translateY(8px);transition:opacity .45s ease, transform .45s ease}
     .testimonial-card img.show{opacity:1;transform:none}
-    .blog-grid {display: grid;grid-template-columns: 1fr;gap: 18px;}
-    .blog-card {border: 1px solid var(--border);border-radius: 12px;padding: 16px;background: var(--card);transition: transform .2s ease;}
+    .blog-card { display: flex; flex-direction: row; gap: 12px; border: 1px solid var(--border); border-radius: 12px; padding: 12px;  background: var(--card);  transition: transform .2s ease;  align-items: flex-start;}
     .blog-card:hover { transform: translateY(-4px); }
-    .blog-card h3 {margin: 0 0 8px; font-size: 1.2rem; color: var(--accent);}
-    .blog-card p {color: var(--muted);font-size: 0.95rem;}
-    .blog-card a {color: var(--accent);font-weight: 700;text-decoration: underline;}
+    .blog-card img {width: 120px; height: 80px; object-fit: cover; border-radius: 8px; flex-shrink: 0;}
+    .blog-card-content {flex: 1;}
+    .blog-card-content small { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px;}
+    .blog-card-content h3 { margin: 0 0 6px; font-size: 1.05rem; color: var(--text); font-weight: 700;}
+    .blog-card-content p { margin: 0 0 6px; font-size: 0.9rem; color: var(--muted); line-height: 1.4;}
+    .blog-card-content a { font-size: 0.85rem; color: var(--accent); font-weight: 700; text-decoration: underline;}
     @media(min-width:700px){.blog-grid { grid-template-columns: repeat(2, 1fr); }}
     .video-grid{display:grid;grid-template-columns:1fr;gap:16px}
     .video-wrapper iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:10px}
@@ -263,7 +265,7 @@
   <!-- Footer -->
   <footer id="contact">
     <div class="footer-inner">
-      <div id="footer-map"></div>
+      
       <div>
         <h3 id="footer-title">CV. Sabiq Bejo</h3>
         <p id="footer-desc">Produsen Telur Asin & Olahan dari Lamongan.</p>
@@ -277,6 +279,8 @@
           <a href="#" id="refundLink" style="color:var(--accent);text-decoration:underline;cursor:pointer">Kebijakan Pengembalian</a>
         </p>
       </div>
+      <div id="footer-map"></div>
+      <div id="popularArticles" style="margin-top:12px"></div>
     </div>
   </footer>
 
@@ -928,25 +932,45 @@
   const rows = await fetchSheet('Artikel').catch(()=>[]);
   const container = document.getElementById('blogList');
   container.innerHTML = '';
-  if(!rows.length){ container.innerHTML = '<p>Belum ada artikel</p>'; return; }
+  if(!rows.length){ 
+    container.innerHTML = '<p>Belum ada artikel</p>'; 
+    return; 
+  }
 
-  rows.forEach(r=>{
+  // acak & ambil 6 artikel
+  const shuffled = rows.sort(()=>0.5 - Math.random()).slice(0,6);
+
+  shuffled.forEach(r=>{
     const judul = r.judul || 'Artikel';
-    const slug = r.slug || '#';
+    const kategori = r.kategori || 'UMKM';
     const desc = r.deskripsi || (r.isi ? r.isi.substring(0,120)+'…' : '');
-    const img = r.gambar || 'https://via.placeholder.com/600x300?text=Artikel';
+    const img = r.gambar || 'https://via.placeholder.com/300x200?text=Artikel';
 
     const card = document.createElement('div');
     card.className = 'blog-card';
     card.innerHTML = `
-      <img src="${img}" alt="${judul}" style="width:100%;border-radius:8px;margin-bottom:10px">
-      <h3>${judul}</h3>
-      <p>${desc}</p>
-      <a href="/blog/${slug}" target="_blank">Baca Selengkapnya</a>
+      <img src="${img}" alt="${judul}">
+      <div class="blog-card-content">
+        <small>${kategori}</small>
+        <h3>${judul}</h3>
+        <p>${desc}</p>
+        <a href="#" onclick="openArticleModal('${escapeHtml(judul)}','${escapeHtml(r.isi||desc)}');return false;">Baca Selengkapnya</a>
+      </div>
     `;
     container.appendChild(card);
   });
+
+    // ambil 3 artikel pertama sebagai "populer"
+    const popular = rows.slice(0,3);
+    const popCont = document.getElementById('popularArticles');
+    popCont.innerHTML = '<h4 style="margin:8px 0;color:var(--accent)">Artikel Populer</h4>';
+    popular.forEach(r=>{
+      const judul = r.judul || 'Artikel';
+      const slug = r.slug || '';
+      popCont.innerHTML += `<p><a href="#" onclick="openArticleModal('${escapeHtml(judul)}','${escapeHtml(r.isi||'')}');return false;" style="color:var(--accent);text-decoration:underline">${judul}</a></p>`;
+    });
 }
+
 
   
   /* ====== INIT ====== */
