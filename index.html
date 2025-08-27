@@ -290,7 +290,6 @@
   </div>
 </footer>
 
-
   <!-- Floating controls -->
   <div class="controls-float" aria-hidden="false">
     <div id="scrollTopBtn" class="control-btn scroll-top" title="Kembali ke atas">⬆</div>
@@ -958,22 +957,20 @@
     `;
     container.appendChild(card);
   });
-
-
-    // ambil 3 artikel pertama sebagai "populer"
-    const popular = rows.slice(0,3);
-    const popCont = document.getElementById('popularArticles');
-    popCont.innerHTML = '<h4 style="margin:8px 0;color:var(--accent)">Artikel Populer</h4>';
-    popular.forEach(r=>{
-      const judul = r.judul || 'Artikel';
-      const slug = r.slug || '';
-      popCont.innerHTML += `<p><a href="/artikel.html?slug=${slug}" onclick="openArticleModal('${escapeHtml(judul)}','${escapeHtml(r.isi||'')}');return false;" style="color:var(--accent);text-decoration:underline">${judul}</a></p>`;
-    });
 }
+    async function loadPopularArticles(){
+    const rows = await fetchSheet('Artikel').catch(()=>[]);
+    const popular = rows.filter(r=>r.populer==='yes').slice(0,3);
+    const list = document.getElementById('popularList');
+    list.innerHTML = '';
+    popular.forEach(r=>{
+      const li = document.createElement('li');
+      li.innerHTML = `<a href="/blog/${r.slug}" target="_blank">${r.judul}</a>`;
+      list.appendChild(li);
+    });
+  }
 
-
-  
-  /* ====== INIT ====== */
+/* ====== INIT ====== */
   (async function init(){
     showLoading(true);
     if(localStorage.getItem('dark')==='1') document.body.classList.add('dark');
@@ -1002,6 +999,7 @@
       renderGallery();
       renderTesti();
       await loadArticles();
+      await loadPopularArticles();
 
       initSwipers();
       setupUI();
