@@ -83,6 +83,13 @@
     .testimonial-card{background:var(--card);padding:12px;border-radius:12px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.06)}
     .testimonial-card img{width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:8px;cursor:zoom-in;opacity:0;transform:translateY(8px);transition:opacity .45s ease, transform .45s ease}
     .testimonial-card img.show{opacity:1;transform:none}
+    .blog-grid {display: grid;grid-template-columns: 1fr;gap: 18px;}
+    .blog-card {border: 1px solid var(--border);border-radius: 12px;padding: 16px;background: var(--card);transition: transform .2s ease;}
+    .blog-card:hover { transform: translateY(-4px); }
+    .blog-card h3 {margin: 0 0 8px; font-size: 1.2rem; color: var(--accent);}
+    .blog-card p {color: var(--muted);font-size: 0.95rem;}
+    .blog-card a {color: var(--accent);font-weight: 700;text-decoration: underline;}
+    @media(min-width:700px){.blog-grid { grid-template-columns: repeat(2, 1fr); }}
     .video-grid{display:grid;grid-template-columns:1fr;gap:16px}
     .video-wrapper iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:10px}
     .video-side{border:1px solid var(--border);border-radius:10px;padding:12px;background:var(--card)}
@@ -140,6 +147,7 @@
         <li><a href="#products" class="off-link">Produk</a></li>
         <li><a href="#gallery" class="off-link">Galeri</a></li>
         <li><a href="#testimonials" class="off-link">Testimoni</a></li>
+        <li><a href="#blog">Artikel</a></li>
         <li><a href="#video" class="off-link">Video</a></li>
         <li><a href="#contact" class="off-link">Kontak</a></li>
       </ul>
@@ -166,6 +174,7 @@
           <li><a href="#products">Produk</a></li>
           <li><a href="#gallery">Galeri</a></li>
           <li><a href="#testimonials">Testimoni</a></li>
+          <li><a href="#blog">Artikel</a></li>
           <li><a href="#video">Video</a></li>
           <li><a href="#contact">Kontak</a></li>
         </ul>
@@ -189,6 +198,7 @@
   </section>
 
   <main>
+    
     <!-- Products -->
     <section id="products">
       <h2 class="section-title">Produk Unggulan</h2>
@@ -220,6 +230,13 @@
           <div class="swiper-slide skeleton" style="height:160px"></div>
         </div>
         <div class="swiper-pagination"></div>
+      </div>
+    </section>
+
+    <section id="blog">
+      <h2 class="section-title">Artikel UMKM & Telur Asin</h2>
+      <div id="blogList" class="blog-grid">
+        <p>Sedang memuat artikel...</p>
       </div>
     </section>
 
@@ -906,6 +923,31 @@
   function closeZoom(){ const ov=$('#zoomOverlay'); ov.classList.remove('show'); ov.style.display='none'; ov.setAttribute('aria-hidden','true'); }
   function setZoom(v){ scale = Math.max(1, Math.min(6, v)); $('#zoomImg').style.setProperty('--scale', scale); }
   function setTranslate(x,y){ tx = x; ty = y; $('#zoomImg').style.setProperty('--tx', tx+'px'); $('#zoomImg').style.setProperty('--ty', y+'px'); }
+
+  async function loadArticles(){
+  const rows = await fetchSheet('Artikel').catch(()=>[]);
+  const container = document.getElementById('blogList');
+  container.innerHTML = '';
+  if(!rows.length){ container.innerHTML = '<p>Belum ada artikel</p>'; return; }
+
+  rows.forEach(r=>{
+    const judul = r.judul || 'Artikel';
+    const slug = r.slug || '#';
+    const desc = r.deskripsi || (r.isi ? r.isi.substring(0,120)+'…' : '');
+    const img = r.gambar || 'https://via.placeholder.com/600x300?text=Artikel';
+
+    const card = document.createElement('div');
+    card.className = 'blog-card';
+    card.innerHTML = `
+      <img src="${img}" alt="${judul}" style="width:100%;border-radius:8px;margin-bottom:10px">
+      <h3>${judul}</h3>
+      <p>${desc}</p>
+      <a href="/blog/${slug}" target="_blank">Baca Selengkapnya</a>
+    `;
+    container.appendChild(card);
+  });
+}
+
   
   /* ====== INIT ====== */
   (async function init(){
@@ -935,6 +977,7 @@
       renderProducts();
       renderGallery();
       renderTesti();
+      await loadArticles();
 
       initSwipers();
       setupUI();
