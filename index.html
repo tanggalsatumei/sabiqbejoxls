@@ -1000,7 +1000,7 @@
       <img src="${img}" alt="${judul}">
       <div class="blog-card-text">
         <h3>
-          <a href="#" onclick="openArticleModal('${escapeHtml(judul)}','${escapeHtml(isi)}');return false;">
+          <a href="/artikel.html?slug=${slug}" onclick="openArticleModal('${escapeHtml(judul)}','${escapeHtml(isi)}');return false;">
             ${judul}
           </a>
         </h3>
@@ -1016,7 +1016,7 @@
     popular.forEach(r=>{
       const judul = r.judul || 'Artikel';
       const slug = r.slug || '';
-      popCont.innerHTML += `<p><a href="#" onclick="openArticleModal('${escapeHtml(judul)}','${escapeHtml(r.isi||'')}');return false;" style="color:var(--accent);text-decoration:underline">${judul}</a></p>`;
+      popCont.innerHTML += `<p><a href="/artikel.html?slug=${slug}" onclick="openArticleModal('${escapeHtml(judul)}','${escapeHtml(r.isi||'')}');return false;" style="color:var(--accent);text-decoration:underline">${judul}</a></p>`;
     });
 
 }
