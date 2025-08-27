@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sabiqbejo.vercel.app/sitemap.xml
