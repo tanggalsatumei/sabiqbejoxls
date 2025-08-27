@@ -86,10 +86,10 @@
     .blog-grid {display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;}
     .blog-card {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
   border-bottom: 1px solid var(--border);
-  padding: 10px 0;
+  padding: 8px 0;
 }
 
 .blog-card img {
@@ -100,6 +100,15 @@
   flex-shrink: 0;
 }
 
+/* Responsive: di smartphone gambar diperkecil, tapi tetap kiri */
+@media (max-width: 768px) {
+  .blog-card img {
+    width: 60px;
+    height: 45px;
+  }
+}
+
+
 .blog-card h3 {
   font-size: 1rem;
   color: #0066cc; /* biru ala portal berita */
@@ -107,6 +116,22 @@
   font-weight: 600;
   line-height: 1.4;
 }
+    .blog-card-text {
+  flex: 1;
+  text-align: left;
+}
+.blog-card-text h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ff9900; /* contoh kuning/oranye ala portal */
+  line-height: 1.4;
+}
+.blog-card-text h3 a {
+  text-decoration: none;
+  color: inherit;
+}
+
     .blog-card:hover { transform: translateY(-4px); }
 
     .blog-card p { font-size: 0.9rem; margin: 0 12px 10px; color: var(--muted);}
