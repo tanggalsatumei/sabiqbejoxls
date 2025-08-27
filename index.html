@@ -119,10 +119,10 @@
     .zoom-toolbar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:20001}
     .zoom-toolbar button{background:#fff;border:0;border-radius:10px;padding:.5rem .7rem;font-weight:800;cursor:pointer}
     .zoom-close{position:fixed;top:14px;right:14px;background:#fff;border:0;border-radius:10px;padding:.4rem .6rem;font-weight:900;cursor:pointer}
-    .footer{background:var(--primary);color:var(--accent);margin-top:28px}.
-    .footer-inner { max-width: var(--maxw); margin: 0 auto; padding: 18px 16px; display: grid; grid-template-columns: 40% 40% 20%;  gap: 20px;}
-    #footer-map iframe { width: 100%; height: 200px; border: 0; border-radius: 10px;}
-    @media(max-width: 700px){ .footer-inner { grid-template-columns: 1fr; }}
+    footer{background:var(--primary);color:var(--accent);margin-top:28px}
+    .footer-inner{max-width:var(--maxw);margin:0 auto;padding:18px 16px;display:grid;gap:18px}
+    #footer-map iframe{width:100%;height:80px;border:0;border-radius:10px}
+    @media(min-width:900px){.footer-inner{grid-template-columns:1fr 1fr}#footer-map{order:1}}
     .skeleton{background:linear-gradient(90deg,#eee,#f7f7f7,#eee);background-size:200% 100%;animation:shimmer 1.2s linear infinite;border-radius:10px}
     @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
     @media(max-width:900px){.slide-content{flex-direction:column;text-align:center}.slide-content img{width:170px}.menu-toggle{display:block}nav ul{display:none}}
@@ -263,32 +263,24 @@
 
   <!-- Footer -->
   <footer id="contact">
-  <div class="footer-inner">
-    <!-- Kolom Kontak -->
-    <div>
-      <h3 id="footer-title">CV. Sabiq Bejo</h3>
-      <p id="footer-desc">Produsen Telur Asin & Olahan dari Lamongan.</p>
-      <p><strong>Alamat:</strong> <span id="footer-address">-</span></p>
-      <p><strong>Jam Buka:</strong> <span id="footer-hours">-</span></p>
-      <p><strong>Kontak:</strong> <a id="footer-wa" href="#" target="_blank" rel="noopener">WhatsApp</a></p>
-      <p style="margin-top:8px">
-        <a href="#" id="tosLink">Syarat & Ketentuan</a> ·
-        <a href="#" id="privacyLink">Privasi</a> ·
-        <a href="#" id="refundLink">Refund</a>
-      </p>
+    <div class="footer-inner">
+      <div id="footer-map"></div>
+      <div id="popularArticles" style="margin-top:12px"></div>
+      <div>
+        <h3 id="footer-title">CV. Sabiq Bejo</h3>
+        <p id="footer-desc">Produsen Telur Asin & Olahan dari Lamongan.</p>
+        <p><strong>Alamat:</strong> <span id="footer-address">-</span></p>
+        <p><strong>Jam Buka:</strong> <span id="footer-hours">-</span></p>
+        <p><strong>Kontak:</strong> <a id="footer-wa" href="#" target="_blank" rel="noopener">WhatsApp</a></p>
+        <!-- di footer, tambahkan baris link -->
+        <p style="margin-top:8px">
+          <a href="#" id="tosLink" style="color:var(--accent);text-decoration:underline;cursor:pointer">Syarat & Ketentuan</a> ·
+          <a href="#" id="privacyLink" style="color:var(--accent);text-decoration:underline;cursor:pointer">Kebijakan Privasi</a> ·
+          <a href="#" id="refundLink" style="color:var(--accent);text-decoration:underline;cursor:pointer">Kebijakan Pengembalian</a>
+        </p>
+      </div>
     </div>
-
-    <!-- Kolom Artikel Populer -->
-    <div>
-      <h3>Artikel Populer</h3>
-      <ul id="popularList" style="padding-left:18px; line-height:1.6"></ul>
-    </div>
-
-    <!-- Kolom Maps -->
-    <div id="footer-map"></div>
-  </div>
-</footer>
-
+  </footer>
 
   <!-- Floating controls -->
   <div class="controls-float" aria-hidden="false">
@@ -957,24 +949,19 @@
     `;
     container.appendChild(card);
   });
-}
-    async function loadPopularArticles(){
-  const rows = await fetchSheet("Artikel").catch(()=>[]);
-  const popular = rows.filter(r => (r.populer || "").toLowerCase() === "yes").slice(0,3);
-  const list = document.getElementById("popularList");
-  list.innerHTML = "";
-  if(!popular.length){
-    list.innerHTML = "<li>Tidak ada artikel populer</li>";
-    return;
-  }
-  popular.forEach(r=>{
-    const li = document.createElement("li");
-    li.innerHTML = `<a href="/artikel.html?slug=${r.slug}" target="_blank">${r.judul}</a>`;
-    list.appendChild(li);
-  });
-}
 
+    // ambil 3 artikel pertama sebagai "populer"
+    const popular = rows.slice(0,3);
+    const popCont = document.getElementById('popularArticles');
+    popCont.innerHTML = '<h4 style="margin:8px 0;color:var(--accent)">Artikel Populer</h4>';
+    popular.forEach(r=>{
+      const judul = r.judul || 'Artikel';
+      const slug = r.slug || '';
+      popCont.innerHTML += `<p><a href="#" onclick="openArticleModal('${escapeHtml(judul)}','${escapeHtml(r.isi||'')}');return false;" style="color:var(--accent);text-decoration:underline">${judul}</a></p>`;
+    });
 
+}
+    
 /* ====== INIT ====== */
   (async function init(){
     showLoading(true);
