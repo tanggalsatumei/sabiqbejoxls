@@ -83,60 +83,13 @@
     .testimonial-card{background:var(--card);padding:12px;border-radius:12px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.06)}
     .testimonial-card img{width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:8px;cursor:zoom-in;opacity:0;transform:translateY(8px);transition:opacity .45s ease, transform .45s ease}
     .testimonial-card img.show{opacity:1;transform:none}
-    .blog-grid {display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;}
-    .blog-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  border-bottom: 1px solid var(--border);
-  padding: 8px 0;
-}
-
-.blog-card img {
-  width: 90px;
-  height: 65px;
-  object-fit: cover;
-  border-radius: 6px;
-  flex-shrink: 0;
-}
-
-/* Responsive: di smartphone gambar diperkecil, tapi tetap kiri */
-@media (max-width: 768px) {
-  .blog-card img {
-    width: 60px;
-    height: 45px;
-  }
-}
-
-
-.blog-card h3 {
-  font-size: 1rem;
-  color: #0066cc; /* biru ala portal berita */
-  margin: 0;
-  font-weight: 600;
-  line-height: 1.4;
-}
-    .blog-card-text {
-  flex: 1;
-  text-align: left;
-}
-.blog-card-text h3 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #ff9900; /* contoh kuning/oranye ala portal */
-  line-height: 1.4;
-}
-.blog-card-text h3 a {
-  text-decoration: none;
-  color: inherit;
-}
-
+    .blog-grid {display: grid;grid-template-columns: 1fr;gap: 18px;}
+    .blog-card {border: 1px solid var(--border);border-radius: 12px;padding: 16px;background: var(--card);transition: transform .2s ease;}
     .blog-card:hover { transform: translateY(-4px); }
-
-    .blog-card p { font-size: 0.9rem; margin: 0 12px 10px; color: var(--muted);}
-    .blog-card a { font-size: 0.9rem; margin: 0 12px 14px; font-weight: 700; color: var(--accent); text-decoration: underline;}
-    @media(max-width: 600px) {  .blog-grid {    grid-template-columns: 1fr; /* jadi 1 kolom */  }  .blog-card {    flex-direction: column;  }}
+    .blog-card h3 {margin: 0 0 8px; font-size: 1.2rem; color: var(--accent);}
+    .blog-card p {color: var(--muted);font-size: 0.95rem;}
+    .blog-card a {color: var(--accent);font-weight: 700;text-decoration: underline;}
+    @media(min-width:700px){.blog-grid { grid-template-columns: repeat(2, 1fr); }}
     .video-grid{display:grid;grid-template-columns:1fr;gap:16px}
     .video-wrapper iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:10px}
     .video-side{border:1px solid var(--border);border-radius:10px;padding:12px;background:var(--card)}
@@ -167,7 +120,7 @@
     .zoom-close{position:fixed;top:14px;right:14px;background:#fff;border:0;border-radius:10px;padding:.4rem .6rem;font-weight:900;cursor:pointer}
     footer{background:var(--primary);color:var(--accent);margin-top:28px}
     .footer-inner{max-width:var(--maxw);margin:0 auto;padding:18px 16px;display:grid;gap:18px}
-    #footer-map iframe{width:100%;height:80px;border:0;border-radius:10px}
+    #footer-map iframe{width:100%;height:220px;border:0;border-radius:10px}
     @media(min-width:900px){.footer-inner{grid-template-columns:1fr 1fr}#footer-map{order:1}}
     .skeleton{background:linear-gradient(90deg,#eee,#f7f7f7,#eee);background-size:200% 100%;animation:shimmer 1.2s linear infinite;border-radius:10px}
     @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
@@ -975,40 +928,28 @@
   const rows = await fetchSheet('Artikel').catch(()=>[]);
   const container = document.getElementById('blogList');
   container.innerHTML = '';
-  if(!rows.length){ 
-    container.innerHTML = '<p>Belum ada artikel</p>'; 
-    return; 
-  }
+  if(!rows.length){ container.innerHTML = '<p>Belum ada artikel</p>'; return; }
 
-  // cek device: kalau mobile tampil 3, kalau desktop tampil 6
-  let limit = 6;
-  if (window.innerWidth <= 768) {
-    limit = 3;
-  }
-
-  const shuffled = rows.sort(()=>0.5 - Math.random()).slice(0, limit);
-
-  shuffled.forEach(r=>{
+  rows.forEach(r=>{
     const judul = r.judul || 'Artikel';
-    const img = r.gambar || 'https://via.placeholder.com/90x65?text=Artikel';
-    const isi = r.isi || '';
+    const slug = r.slug || '#';
+    const desc = r.deskripsi || (r.isi ? r.isi.substring(0,120)+'…' : '');
+    const img = r.gambar || 'https://via.placeholder.com/600x300?text=Artikel';
 
     const card = document.createElement('div');
     card.className = 'blog-card';
     card.innerHTML = `
-      <img src="${img}" alt="${judul}">
-      <div class="blog-card-text">
-        <h3>
-          <a href="/artikel.html?slug=${slug}" onclick="openArticleModal('${escapeHtml(judul)}','${escapeHtml(isi)}');return false;">
-            ${judul}
-          </a>
-        </h3>
-      </div>
+      <img src="${img}" alt="${judul}" style="width:100%;border-radius:8px;margin-bottom:10px">
+      <h3>${judul}</h3>
+      <p>${desc}</p>
+      <a href="/blog/${slug}" target="_blank">Baca Selengkapnya</a>
     `;
     container.appendChild(card);
   });
-  }    
-/* ====== INIT ====== */
+}
+
+  
+  /* ====== INIT ====== */
   (async function init(){
     showLoading(true);
     if(localStorage.getItem('dark')==='1') document.body.classList.add('dark');
@@ -1037,7 +978,7 @@
       renderGallery();
       renderTesti();
       await loadArticles();
-      
+
       initSwipers();
       setupUI();
 
@@ -1185,41 +1126,6 @@
       }
     });
     </script>
-    <script>async function fetchSheet(sheet){
-  const url = `${API_URL}?sheet=${encodeURIComponent(sheet)}&token=${API_TOKEN}`;
-  console.log("Fetch URL:", url); // debug URL
 
-  const res = await fetch(url);
-  console.log("Fetch status:", res.status); // debug status code
-
-  if (!res.ok) throw new Error('Network response was not ok');
-
-  const json = await res.json();
-  console.log("Fetch raw JSON:", json); // debug isi respon
-
-  // 🔍 Auto-handle dua format:
-  // 1) Langsung array → return apa adanya
-  // 2) Object {data: [...]} → return isinya
-  if (Array.isArray(json)) {
-    return json;
-  } else if (json && Array.isArray(json.data)) {
-    return json.data;
-  } else {
-    console.warn("Format API tidak sesuai, return []");
-    return [];
-  }
-}
-
-async function init(){
-  try {
-    await loadArticles();
-    if (typeof loadPopularArticles === "function") {
-      await loadPopularArticles();
-    }
-  } catch(err){
-    console.error("Init error:", err); // 🔍 sekarang error detail keliatan
-  }
-}
-</script>
 </body>
 </html>
