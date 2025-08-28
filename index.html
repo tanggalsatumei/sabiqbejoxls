@@ -1187,13 +1187,27 @@
     </script>
     <script>async function fetchSheet(sheet){
   const url = `${API_URL}?sheet=${encodeURIComponent(sheet)}&token=${API_TOKEN}`;
-  console.log("Fetch URL:", url); // 🔍 lihat URL yang dipanggil
+  console.log("Fetch URL:", url); // debug URL
+
   const res = await fetch(url);
-  console.log("Fetch status:", res.status); // 🔍 cek status 200/403/404
+  console.log("Fetch status:", res.status); // debug status code
+
   if (!res.ok) throw new Error('Network response was not ok');
-  const data = await res.json();
-  console.log("Fetch data:", data); // 🔍 cek isi respon
-  return data;
+
+  const json = await res.json();
+  console.log("Fetch raw JSON:", json); // debug isi respon
+
+  // 🔍 Auto-handle dua format:
+  // 1) Langsung array → return apa adanya
+  // 2) Object {data: [...]} → return isinya
+  if (Array.isArray(json)) {
+    return json;
+  } else if (json && Array.isArray(json.data)) {
+    return json.data;
+  } else {
+    console.warn("Format API tidak sesuai, return []");
+    return [];
+  }
 }
 
 async function init(){
