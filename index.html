@@ -1008,7 +1008,8 @@
     `;
     container.appendChild(card);
   });
-
+}
+    async function loadPopularArticles(){
     // ambil 3 artikel pertama sebagai "populer"
     const popular = rows.slice(0,3);
     const popCont = document.getElementById('popularArticles');
@@ -1018,8 +1019,8 @@
       const slug = r.slug || '';
       popCont.innerHTML += `<p><a href="/artikel.html?slug=${slug}" onclick="openArticleModal('${escapeHtml(judul)}','${escapeHtml(r.isi||'')}');return false;" style="color:var(--accent);text-decoration:underline">${judul}</a></p>`;
     });
+    }
 
-}
     
 /* ====== INIT ====== */
   (async function init(){
@@ -1050,7 +1051,7 @@
       renderGallery();
       renderTesti();
       await loadArticles();
-      //await loadPopularArticles();
+      await loadPopularArticles();
       initSwipers();
       setupUI();
 
