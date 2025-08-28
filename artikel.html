@@ -4,85 +4,62 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Artikel | Sabiq Bejo</title>
-  <link rel="icon" href="https://img.icons8.com/emoji/48/egg-emoji.png" type="image/png">
-  <style>
-    body {font-family: Arial, sans-serif; margin:0; padding:20px; line-height:1.6; background:#fafafa; color:#222;}
-    header {margin-bottom:20px;}
-    h1 {font-size:1.8rem; margin-bottom:12px;}
-    #meta {font-size:0.9rem; color:#666; margin-bottom:20px;}
-    img {max-width:100%; border-radius:8px; margin:12px 0;}
-    .container {max-width: 800px; margin:auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.08);}
-    a {color:#d19e00;}
-    footer {margin-top:40px; text-align:center; font-size:0.85rem; color:#777;}
-  </style>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <a href="/" style="text-decoration:none;color:#d19e00;font-weight:bold">← Kembali</a>
-    </header>
+  <header>
+    <div class="header-bar">
+      <a href="index.html" class="btn">⬅ Kembali</a>
+      <h1>Artikel</h1>
+    </div>
+  </header>
 
-    <article>
-      <h1 id="judul">Memuat...</h1>
-      <div id="meta"></div>
-      <img id="gambar" src="" alt="" style="display:none">
-      <div id="isi">Sedang mengambil artikel...</div>
+  <main style="max-width:800px;margin:20px auto;padding:0 16px">
+    <article id="articleContent">
+      <h2>Judul Artikel</h2>
+      <img id="articleImage" src="" alt="" style="width:100%;border-radius:8px;margin:12px 0">
+      <div id="articleBody" style="line-height:1.6"></div>
     </article>
-  </div>
 
-  <footer>
-    &copy; <span id="year"></span> CV. Sabiq Bejo
-  </footer>
+    <section id="related">
+      <h3>Artikel Terkait</h3>
+      <ul id="relatedList"></ul>
+    </section>
+  </main>
 
-<script>
-const API_URL = "https://script.google.com/macros/s/AKfycbw7z-KG3qwpi8-AkrMPGg2ONX_gWwepiN7oKPiAcx6n_fVBjASLZ79IMxsuV99tUisCwg/exec";
-const API_TOKEN = "1_sE-EY0hPXT_mQBg7sifRUoDAon6DvQNQZcUsrwnD0A";
+  <script>
+  const API_URL = "https://script.google.com/macros/s/AKfycbw7z-KG3qwpi8-AkrMPGg2ONX_gWwepiN7oKPiAcx6n_fVBjASLZ79IMxsuV99tUisCwg/exec";
+  const API_TOKEN = "1_sE-EY0hPXT_mQBg7sifRUoDAon6DvQNQZcUsrwnD0A";
 
-// helper ambil query string
-function getQueryParam(name){
-  const url = new URL(window.location.href);
-  return url.searchParams.get(name);
-}
-
-async function fetchSheet(sheet){
-  const res = await fetch(`${API_URL}?sheet=${encodeURIComponent(sheet)}&token=${API_TOKEN}`);
-  const txt = await res.text();
-  try {
-    return JSON.parse(txt).data || [];
-  } catch(e) {
-    return [];
-  }
-}
-
-async function loadArticle(){
-  const slug = getQueryParam("slug");
-  if(!slug){ document.getElementById("isi").innerText = "Slug artikel tidak ditemukan."; return; }
-
-  const rows = await fetchSheet("Artikel");
-  const artikel = rows.find(r => (r.slug||"").toLowerCase() === slug.toLowerCase());
-
-  if(!artikel){
-    document.getElementById("judul").innerText = "Artikel tidak ditemukan";
-    document.getElementById("isi").innerText = "Maaf, artikel dengan slug '"+slug+"' tidak tersedia.";
-    return;
+  async function fetchSheet(name){
+    const res = await fetch(`${API_URL}?sheet=${name}&token=${API_TOKEN}`);
+    return (await res.json()).data || [];
   }
 
-  document.title = artikel.judul + " | Sabiq Bejo";
-  document.getElementById("judul").innerText = artikel.judul || "Artikel";
-  document.getElementById("meta").innerText = artikel.tanggal ? `Dipublikasikan pada ${artikel.tanggal}` : "";
-  
-  if(artikel.gambar){
-    const img = document.getElementById("gambar");
-    img.src = artikel.gambar;
-    img.alt = artikel.judul || "";
-    img.style.display = "block";
+  function getParam(name){
+    const url = new URL(window.location.href);
+    return url.searchParams.get(name);
   }
 
-  document.getElementById("isi").innerHTML = artikel.isi || artikel.deskripsi || "Belum ada konten.";
-}
+  (async function(){
+    const slug = getParam("slug");
+    const rows = await fetchSheet("Artikel");
+    const art = rows.find(r=>r.slug===slug);
+    if(art){
+      document.querySelector("h2").textContent = art.judul;
+      document.getElementById("articleImage").src = art.gambar;
+      document.getElementById("articleBody").innerHTML = art.isi || art.deskripsi;
+    }
 
-document.getElementById("year").innerText = new Date().getFullYear();
-loadArticle();
-</script>
+    // artikel terkait (acak)
+    const related = rows.filter(r=>r.slug!==slug).sort(()=>Math.random()-0.5).slice(0,3);
+    const list = document.getElementById("relatedList");
+    related.forEach(r=>{
+      const li = document.createElement("li");
+      li.innerHTML = `<a href="artikel.html?slug=${r.slug}">${r.judul}</a>`;
+      list.appendChild(li);
+    });
+  })();
+  </script>
 </body>
 </html>
