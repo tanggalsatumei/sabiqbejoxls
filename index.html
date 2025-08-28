@@ -1198,6 +1198,27 @@
       }
     });
     </script>
+    <script>async function fetchSheet(sheet){
+  const url = `${API_URL}?sheet=${encodeURIComponent(sheet)}&token=${API_TOKEN}`;
+  console.log("Fetch URL:", url); // 🔍 lihat URL yang dipanggil
+  const res = await fetch(url);
+  console.log("Fetch status:", res.status); // 🔍 cek status 200/403/404
+  if (!res.ok) throw new Error('Network response was not ok');
+  const data = await res.json();
+  console.log("Fetch data:", data); // 🔍 cek isi respon
+  return data;
+}
 
+async function init(){
+  try {
+    await loadArticles();
+    if (typeof loadPopularArticles === "function") {
+      await loadPopularArticles();
+    }
+  } catch(err){
+    console.error("Init error:", err); // 🔍 sekarang error detail keliatan
+  }
+}
+</script>
 </body>
 </html>
