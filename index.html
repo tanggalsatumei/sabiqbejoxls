@@ -986,7 +986,7 @@
       <div>
         <h3>${judul}</h3>
         <p>${desc}</p>
-        <a href="artikel.html?slug=${slug}">Baca Selengkapnya</a>
+        <a href="/artikel.html?slug=${slug}">Baca Selengkapnya</a>
       </div>
     `;
     container.appendChild(card);
@@ -1002,7 +1002,7 @@
   rows.sort((a,b)=>(b.views||0)-(a.views||0));
   rows.slice(0,3).forEach(r=>{
     const li = document.createElement('li');
-    li.innerHTML = `<a href="artikel.html?slug=${r.slug}" style="color:var(--accent)">${r.judul}</a>`;
+    li.innerHTML = `<a href="/artikel.html?slug=${r.slug}" style="color:var(--accent)">${r.judul}</a>`;
     list.appendChild(li);
   });
 }
