@@ -523,6 +523,17 @@
   let cart = [];
   let heroSwiper, gallerySwiper, testiSwiper;
 
+  async function fetchAll(){
+    try {
+    const res = await fetch(`${API_URL}?sheet=all&token=${API_TOKEN}`, { cache: "reload" });
+    const data = await res.json();
+    return data || {};
+    } catch (e) {
+    console.error("Gagal fetchAll:", e);
+    return {};
+    }
+    }
+
   async function fetchSheet(name){
     const url = `${API_URL}?sheet=${encodeURIComponent(name)}&token=${encodeURIComponent(API_TOKEN)}`;
     const j = await safeFetch(url);
@@ -1023,61 +1034,57 @@
     list.appendChild(li);
   });
 }
-
   
   /* ====== INIT ====== */
   (async function init(){
     showLoading(true);
     if(localStorage.getItem('dark')==='1') document.body.classList.add('dark');
-
+    
+    
     try{
-      const settingsRows = await fetchSheet('Pengaturan').catch(()=>[]);
-      SETTINGS = rowsToMap(settingsRows);
-      applySettings(SETTINGS);
-
-      const [slidesRows, productsRows, galleryRows, testiRows] = await Promise.all([
-        fetchSheet('Slider').catch(()=>[]),
-        fetchSheet('Produk').catch(()=>[]),
-        fetchSheet('Galeri').catch(()=>[]),
-        fetchSheet('Testimoni').catch(()=>[])
-      ]);
-
-      SLIDES = normalizeSlides(slidesRows);
-      PRODUCTS = normalizeProducts(productsRows);
-      // Hilangkan produk yang tidak aktif (status = no)
-      PRODUCTS = PRODUCTS.filter(p => !!p.aktif);
-      GALLERY = normalizeGallery(galleryRows);
-      TESTIS = normalizeTestis(testiRows);
-
-      renderHero();
-      renderProducts();
-      renderGallery();
-      renderTesti();
-      await loadArticles();
-      await loadPopularArticles();
-
-      initSwipers();
-      setupUI();
-
-      // attach reveal observation to new elements
-      setTimeout(()=> {
-        $$('#productsGrid .card').forEach(el=> revealObserver.observe(el));
-        $$('#galleryGrid img').forEach(img=> revealObserver.observe(img));
-        $$('#testiGrid img').forEach(img=> revealObserver.observe(img));
-        $$('#slidesContainer img').forEach(img=> revealObserver.observe(img));
-      }, 50);
-
-      // Countdown loop (fixed)
-      updateCountdowns();
-      setInterval(updateCountdowns, 1000);
-
+    const settingsRows = await fetchSheet('Pengaturan').catch(()=>[]);
+    SETTINGS = rowsToMap(settingsRows);
+    applySettings(SETTINGS);
+    
+    
+    const allData = await fetchAll();
+    SLIDES = normalizeSlides(allData.Slider);
+    PRODUCTS = normalizeProducts(allData.Produk);
+    GALLERY = normalizeGallery(allData.Galeri);
+    TESTIS = normalizeTestis(allData.Testimoni);
+    
+    
+    renderHero();
+    renderProducts();
+    renderGallery();
+    renderTesti();
+    await loadArticles();
+    await loadPopularArticles();
+    
+    
+    initSwipers();
+    setupUI();
+    
+    
+    setTimeout(()=> {
+    $$('#productsGrid .card').forEach(el=> revealObserver.observe(el));
+    $$('#galleryGrid img').forEach(img=> revealObserver.observe(img));
+    $$('#testiGrid img').forEach(img=> revealObserver.observe(img));
+    $$('#slidesContainer img').forEach(img=> revealObserver.observe(img));
+    }, 50);
+    
+    
+    updateCountdowns();
+    setInterval(updateCountdowns, 1000);
+    
+    
     } catch(err){
-      console.error('Init error', err);
-      alert('Gagal muat data. Periksa API_URL/API_TOKEN & Apps Script deployment.');
+    console.error('Init error', err);
+    alert('Gagal muat data. Periksa API_URL/API_TOKEN & Apps Script deployment.');
     } finally {
-      showLoading(false);
+    showLoading(false);
     }
-  })();
+    })();
 
     // -- Isi standar (bahasa Indonesia) --
     const LEGAL_TEXT = {
