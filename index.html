@@ -197,9 +197,7 @@
         <li><a href="#hero" class="off-link">Beranda</a></li>
         <li><a href="#products" class="off-link">Produk</a></li>
         <li><a href="#gallery" class="off-link">Galeri</a></li>
-        <li><a href="#testimonials" class="off-link">Testimoni</a></li>
         <li><a href="#blog">Artikel</a></li>
-        <li><a href="#video" class="off-link">Video</a></li>
         <li><a href="#contact" class="off-link">Kontak</a></li>
       </ul>
     </nav>
@@ -224,9 +222,7 @@
           <li><a href="#hero">Beranda</a></li>
           <li><a href="#products">Produk</a></li>
           <li><a href="#gallery">Galeri</a></li>
-          <li><a href="#testimonials">Testimoni</a></li>
           <li><a href="#blog">Artikel</a></li>
-          <li><a href="#video">Video</a></li>
           <li><a href="#contact">Kontak</a></li>
         </ul>
       </nav>
@@ -1023,19 +1019,6 @@
     list.appendChild(li);
   });
 }
-
-    async function fetchAllData(){
-  try {
-    const res = await fetch(`${API_URL}?sheet=all&token=${API_TOKEN}`, {cache:"no-cache"});
-    const txt = await res.text();
-    const parsed = JSON.parse(txt);
-    return parsed.data || {};
-  } catch(e){
-    console.error("Gagal fetch all data", e);
-    return {};
-  }
-}
-
   
   /* ====== INIT ====== */
   (async function init(){
@@ -1047,22 +1030,26 @@
       SETTINGS = rowsToMap(settingsRows);
       applySettings(SETTINGS);
 
-      // Ganti blok di atas dengan ini:
-const allData = await fetchAllData();
+      const [slidesRows, productsRows, galleryRows, testiRows] = await Promise.all([
+        fetchSheet('Slider').catch(()=>[]),
+        fetchSheet('Produk').catch(()=>[]),
+        fetchSheet('Galeri').catch(()=>[]),
+        fetchSheet('Testimoni').catch(()=>[])
+      ]);
 
-SLIDES = normalizeSlides(allData.Slider || []);
-PRODUCTS = normalizeProducts(allData.Produk || []);
-PRODUCTS = PRODUCTS.filter(p => !!p.aktif);
-GALLERY = normalizeGallery(allData.Galeri || []);
-TESTIS = normalizeTestis(allData.Testimoni || []);
+      SLIDES = normalizeSlides(slidesRows);
+      PRODUCTS = normalizeProducts(productsRows);
+      // Hilangkan produk yang tidak aktif (status = no)
+      PRODUCTS = PRODUCTS.filter(p => !!p.aktif);
+      GALLERY = normalizeGallery(galleryRows);
+      TESTIS = normalizeTestis(testiRows);
 
-renderHero();
-renderProducts();
-renderGallery();
-renderTesti();
-await loadArticles(allData.Artikel || []);      // kalau loadArticles bisa terima data
-await loadPopularArticles(allData.Artikel || []); // sama, biar tidak fetch ulang
-
+      renderHero();
+      renderProducts();
+      renderGallery();
+      renderTesti();
+      await loadArticles();
+      await loadPopularArticles();
 
       initSwipers();
       setupUI();
