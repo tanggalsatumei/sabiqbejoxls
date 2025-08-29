@@ -523,13 +523,17 @@
   let cart = [];
   let heroSwiper, gallerySwiper, testiSwiper;
 
-  async function fetchSheet(name){
-    const url = `${API_URL}?sheet=${encodeURIComponent(name)}&token=${encodeURIComponent(API_TOKEN)}`;
-    const j = await safeFetch(url);
-    if(j.status === 'success') return j.data || [];
-    if(Array.isArray(j)) return j;
-    return [];
+  async function fetchAllData(){
+  const res = await fetch(`${API_URL}?sheet=all&token=${API_TOKEN}`, {cache:"no-cache"});
+  const txt = await res.text();
+  try {
+    return JSON.parse(txt).data || {};
+  } catch(e){
+    console.error("Gagal parse all data", e, txt);
+    return {};
   }
+}
+    
   function rowsToMap(rows){
     const m={};
     (rows||[]).forEach(r=>{
@@ -1034,26 +1038,21 @@
       SETTINGS = rowsToMap(settingsRows);
       applySettings(SETTINGS);
 
-      const [slidesRows, productsRows, galleryRows, testiRows] = await Promise.all([
-        fetchSheet('Slider').catch(()=>[]),
-        fetchSheet('Produk').catch(()=>[]),
-        fetchSheet('Galeri').catch(()=>[]),
-        fetchSheet('Testimoni').catch(()=>[])
-      ]);
-
-      SLIDES = normalizeSlides(slidesRows);
-      PRODUCTS = normalizeProducts(productsRows);
-      // Hilangkan produk yang tidak aktif (status = no)
+      // Ganti blok di atas dengan ini:
+      const allData = await fetchAllData();
+      
+      SLIDES = normalizeSlides(allData.Slider || []);
+      PRODUCTS = normalizeProducts(allData.Produk || []);
       PRODUCTS = PRODUCTS.filter(p => !!p.aktif);
-      GALLERY = normalizeGallery(galleryRows);
-      TESTIS = normalizeTestis(testiRows);
-
+      GALLERY = normalizeGallery(allData.Galeri || []);
+      TESTIS = normalizeTestis(allData.Testimoni || []);
+      
       renderHero();
       renderProducts();
       renderGallery();
       renderTesti();
-      await loadArticles();
-      await loadPopularArticles();
+      await loadArticles(allData.Artikel || []);      // kalau loadArticles bisa terima data
+      await loadPopularArticles(allData.Artikel || []); // sama, biar tidak fetch ulang
 
       initSwipers();
       setupUI();
