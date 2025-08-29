@@ -197,7 +197,9 @@
         <li><a href="#hero" class="off-link">Beranda</a></li>
         <li><a href="#products" class="off-link">Produk</a></li>
         <li><a href="#gallery" class="off-link">Galeri</a></li>
+        <li><a href="#testimonials" class="off-link">Testimoni</a></li>
         <li><a href="#blog">Artikel</a></li>
+        <li><a href="#video" class="off-link">Video</a></li>
         <li><a href="#contact" class="off-link">Kontak</a></li>
       </ul>
     </nav>
@@ -222,7 +224,9 @@
           <li><a href="#hero">Beranda</a></li>
           <li><a href="#products">Produk</a></li>
           <li><a href="#gallery">Galeri</a></li>
+          <li><a href="#testimonials">Testimoni</a></li>
           <li><a href="#blog">Artikel</a></li>
+          <li><a href="#video">Video</a></li>
           <li><a href="#contact">Kontak</a></li>
         </ul>
       </nav>
@@ -519,13 +523,17 @@
   let cart = [];
   let heroSwiper, gallerySwiper, testiSwiper;
 
-  async function fetchSheet(name){
-    const url = `${API_URL}?sheet=${encodeURIComponent(name)}&token=${encodeURIComponent(API_TOKEN)}`;
-    const j = await safeFetch(url);
-    if(j.status === 'success') return j.data || [];
-    if(Array.isArray(j)) return j;
-    return [];
+  async function fetchAllSheets(){
+  try {
+    const res = await fetch(`${API_URL}?sheet=all&token=${API_TOKEN}`, {cache:"no-cache"});
+    const txt = await res.text();
+    return JSON.parse(txt);
+  } catch(e){
+    console.error("Gagal fetch all sheets", e);
+    return {};
   }
+}
+
   function rowsToMap(rows){
     const m={};
     (rows||[]).forEach(r=>{
@@ -648,7 +656,7 @@
 
   // Karena pesan ini fokus pada perbaikan countdown, saya menyertakan fungsi updateCountdowns yang memakai getPromoStatus:
   function renderHero(){
-    const container = $('#slidesContainer');
+    const container = document.getElementById("heroSlider");
     container.innerHTML = '';
     if(!SLIDES.length) SLIDES = [{bg:'https://images.unsplash.com/photo-1523986371872-9d3ba2e2f642?auto=format&fit=crop&w=1600&q=60', img:'https://img.icons8.com/emoji/96/egg-emoji.png', title:'Sabiq Bejo', caption:'Telur Asin Lamongan', btn_text:'Pesan', btn_link:'#products', alt:'Telur asin'}];
     SLIDES.forEach(s=>{
@@ -667,7 +675,7 @@
   }
 
   function renderProducts(){
-  const grid = $('#productsGrid'); grid.innerHTML = '';
+  const container = document.getElementById("produkGrid");
   if(!PRODUCTS.length){ grid.innerHTML = '<p>Tidak ada produk</p>'; return; }
   PRODUCTS.forEach(p=>{
     if(!p.aktif) return; // safety (seharusnya sudah terfilter)
@@ -720,28 +728,26 @@
 }
 
 
-  function renderGallery(){
-    const g = $('#galleryGrid'); g.innerHTML = '';
-    if(!GALLERY.length) GALLERY = [{url:'https://via.placeholder.com/1000x700?text=Gallery', alt:'Galeri'}];
-    GALLERY.forEach(it=>{
-      const slide = document.createElement('div'); slide.className='swiper-slide gallery-item';
-      slide.innerHTML = `<img src="${it.url||''}" alt="${escapeHtml(it.alt||'Galeri')}" loading="lazy" decoding="async" data-zoom="1">`;
-      g.appendChild(slide);
-    });
-  }
+  function renderGaleri(rows){
+  const container = document.getElementById("galeriGrid");
+  container.innerHTML = rows.map(r => `
+    <div class="galeri-item">
+      <img src="${r.gambar}" alt="${r.judul}">
+    </div>
+  `).join("");
+}
 
-  function renderTesti(){
-    const t = $('#testiGrid'); t.innerHTML = '';
-    if(!TESTIS.length) TESTIS = [{nama:'Budi', jabatan:'Pelanggan', gambar:'https://via.placeholder.com/600x400?text=User', alt:'Testimoni'}];
-    TESTIS.forEach(it=>{
-      const slide = document.createElement('div'); slide.className='swiper-slide';
-      slide.innerHTML = `<div class="testimonial-card">
-        <img src="${it.gambar||''}" alt="${escapeHtml(it.alt||it.nama||'Pelanggan')}" loading="lazy" decoding="async" data-zoom="1">
-        <p><strong>${escapeHtml(it.nama||'')}</strong><br><small>${escapeHtml(it.jabatan||'')}</small></p>
-      </div>`;
-      t.appendChild(slide);
-    });
-  }
+
+  function renderTestimoni(rows){
+  const container = document.getElementById("testimoniList");
+  container.innerHTML = rows.map(r => `
+    <blockquote>
+      <p>"${r.isi}"</p>
+      <footer>- ${r.nama}</footer>
+    </blockquote>
+  `).join("");
+}
+
 
   function initSwipers(){
     if(heroSwiper) heroSwiper.destroy(true,true);
@@ -1030,12 +1036,15 @@
       SETTINGS = rowsToMap(settingsRows);
       applySettings(SETTINGS);
 
-      const [slidesRows, productsRows, galleryRows, testiRows] = await Promise.all([
-        fetchSheet('Slider').catch(()=>[]),
-        fetchSheet('Produk').catch(()=>[]),
-        fetchSheet('Galeri').catch(()=>[]),
-        fetchSheet('Testimoni').catch(()=>[])
-      ]);
+      const allData = await fetchAllSheets();
+
+if(allData.Slider) renderHero(allData.Slider);
+if(allData.Produk) renderProduk(allData.Produk);
+if(allData.Galeri) renderGaleri(allData.Galeri);
+if(allData.Testimoni) renderTestimoni(allData.Testimoni);
+if(allData.Artikel) renderArtikel(allData.Artikel);
+if(allData.Pengaturan) applyPengaturan(allData.Pengaturan[0]);
+;
 
       SLIDES = normalizeSlides(slidesRows);
       PRODUCTS = normalizeProducts(productsRows);
