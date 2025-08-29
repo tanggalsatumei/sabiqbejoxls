@@ -523,17 +523,6 @@
   let cart = [];
   let heroSwiper, gallerySwiper, testiSwiper;
 
-  async function fetchAll(){
-    try {
-    const res = await fetch(`${API_URL}?sheet=all&token=${API_TOKEN}`, { cache: "reload" });
-    const data = await res.json();
-    return data || {};
-    } catch (e) {
-    console.error("Gagal fetchAll:", e);
-    return {};
-    }
-    }
-
   async function fetchSheet(name){
     const url = `${API_URL}?sheet=${encodeURIComponent(name)}&token=${encodeURIComponent(API_TOKEN)}`;
     const j = await safeFetch(url);
