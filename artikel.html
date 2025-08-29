@@ -56,12 +56,13 @@ function getQueryParam(name){
 }
 
 async function fetchSheet(sheet){
-  const res = await fetch(`${API_URL}?sheet=${encodeURIComponent(sheet)}&token=${API_TOKEN}`, {cache:"no-cache"});
-  const txt = await res.text();
   try {
-    return JSON.parse(txt).data || [];
+    const res = await fetch(`${API_URL}?sheet=${encodeURIComponent(sheet)}&token=${API_TOKEN}`, {cache:"no-cache"});
+    const txt = await res.text();
+    const parsed = JSON.parse(txt);
+    return parsed.data || [];
   } catch(e) {
-    console.error("Parse error:", e, txt);
+    console.error("Gagal fetch sheet", e);
     return [];
   }
 }
@@ -92,6 +93,7 @@ async function loadArticle(){
   }
 
   document.getElementById("isi").innerHTML = artikel.isi || artikel.deskripsi || "Belum ada konten.";
+
   loadRelated(slug);
 }
 
