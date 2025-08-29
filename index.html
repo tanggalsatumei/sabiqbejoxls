@@ -387,14 +387,13 @@
   const TZONE = 'Asia/Jakarta'; // zona yang dipakai untuk waktu jam-only
   /* ========================= */
 
-  const $  = (s, ctx=document) => ctx.querySelector(s);
+  const $ = (s, ctx=document) => ctx.querySelector(s);
   const $$ = (s, ctx=document) => Array.from((ctx||document).querySelectorAll(s));
-  const pad = n => String(n).padStart(2,"0");
-  
-  function showLoading(show=true){ $('#loadingOverlay')?.classList.toggle('show',!!show); }
-  function formatRupiah(v){ if(v==null||v==='') return '-'; const n=Number(String(v).replace(/\D/g,'')); return isNaN(n)?v:n.toLocaleString(LOCALE); }
+  const pad = n => String(n).padStart(2,'0');
+  function showLoading(show=true){ $('#loadingOverlay')?.classList.toggle('show', !!show); }
+  function formatRupiah(v){ if(v==null||v==='') return '-'; const n=Number(String(v).replace(/\D/g,'')); if(isNaN(n)) return v; return n.toLocaleString(LOCALE); }
   function safeParseJSON(t){ try{return JSON.parse(t);}catch(e){return null;} }
-  async function safeFetch(url){ const res=await fetch(url,{cache:'no-cache'}); const txt=await res.text(); if(txt.trim().startsWith('<')) throw new Error("API returned HTML"); const j=safeParseJSON(txt); if(!j) throw new Error("Invalid JSON"); return j; }
+  async function safeFetch(url){ const res=await fetch(url,{cache:'no-cache'}); const txt=await res.text(); if(txt.trim().startsWith('<')) throw new Error('API returned HTML'); const j=safeParseJSON(txt); if(!j) throw new Error('Invalid JSON'); return j; }
   function escapeHtml(s){ if(s==null) return ''; return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
   /* ===== Time utilities (robust Jakarta handling) ===== */
@@ -519,18 +518,101 @@
   }
 
   /* ====== App state & helpers (unchanged) ====== */
-  let SETTINGS={}, PRODUCTS=[], SLIDES=[], GALLERY=[], TESTIS=[], cart=[], heroSwiper,gallerySwiper,testiSwiper;
+  let SETTINGS = {};
+  let PRODUCTS = [], SLIDES = [], GALLERY = [], TESTIS = [];
+  let cart = [];
+  let heroSwiper, gallerySwiper, testiSwiper;
 
-  async function fetchAll(){ try{const r=await fetch(`${API_URL}?sheet=all&token=${API_TOKEN}`,{cache:"reload"});return await r.json();}catch(e){console.error("fetchAll",e);return{};} }
-  async function fetchSheet(n){const url=`${API_URL}?sheet=${encodeURIComponent(n)}&token=${API_TOKEN}`;const j=await safeFetch(url);if(j.status==="success")return j.data||[];if(Array.isArray(j))return j;return[];}
-  function rowsToMap(rows){const m={};(rows||[]).forEach(r=>{if(r.key&&r.value)m[String(r.key).trim().toLowerCase()]=r.value;});return m;}
-  const getAny=(r,ks=[])=>{for(const k of ks){if(r[k])return r[k];}return'';};
+  async function fetchSheet(name){
+    const url = `${API_URL}?sheet=${encodeURIComponent(name)}&token=${encodeURIComponent(API_TOKEN)}`;
+    const j = await safeFetch(url);
+    if(j.status === 'success') return j.data || [];
+    if(Array.isArray(j)) return j;
+    return [];
+  }
+  function rowsToMap(rows){
+    const m={};
+    (rows||[]).forEach(r=>{
+      if(r.key != null && r.value != null){
+        m[String(r.key).trim().toLowerCase()] = r.value;
+      } else {
+        const ks = Object.keys(r||{});
+        if(ks.length>=2 && r[ks[0]] != null){
+          m[String(r[ks[0]]).trim().toLowerCase()] = r[ks[1]];
+        }
+      }
+    });
+    return m;
+  }
+  const getAny = (r, keys=[]) => { for(const k of keys){ if(r[k]!==undefined && r[k]!=='' && r[k]!==null) return r[k]; } return ''; };
 
-  /* ==== Normalizers ==== */
-  function normalizeSlides(rows){return(rows||[]).map(r=>({bg:getAny(r,['bg','background']),img:getAny(r,['image','gambar']),alt:getAny(r,['alt']),title:getAny(r,['judul','title']),caption:getAny(r,['deskripsi','caption']),btn_text:getAny(r,['tombol'])||'Lihat',btn_link:getAny(r,['link'])||'#'}));}
-  function normalizeProducts(rows){return(rows||[]).map((r,i)=>({id:r.id||'p'+i,nama:getAny(r,['nama','namaproduk']),gbr:getAny(r,['gambar','image']),alt:getAny(r,['alt']),hargaawal:r.hargaawal,hargadiskon:r.hargadiskon,promostart:r.promostart||'',promoend:r.promoend||'',desc:r.deskripsi||'',aktif:(String(r.status||'ya').toLowerCase()!=='no')}));}
-  function normalizeGallery(rows){return(rows||[]).map(r=>({url:getAny(r,['gambar','image']),alt:r.alt||''}));}
-  function normalizeTestis(rows){return(rows||[]).map(r=>({nama:r.nama||'',jabatan:r.jabatan||'',gambar:r.gambar||'',alt:r.alt||r.nama||''}));}
+  function normalizeSlides(rows){
+    return (rows||[]).map(r=>({
+      bg: getAny(r,['bg','bg_image','bg image','bg_image_url','background']),
+      img: getAny(r,['image','image_url','gambar','gbr','gbr image']),
+      alt: getAny(r,['altslider','alt slider','alt_slider','alt','alt_text']),
+      title: getAny(r,['judulslider','judul slider','title','judul']),
+      // prioritas ket_slider seperti request
+      caption: getAny(r,['ket_slider','ketslider','ket slider','caption','keterangan','ket','keterangan slider','deskripsi','description','desc']),
+      btn_text: getAny(r,['tombol','button','btn_text']) || 'Lihat',
+      btn_link: getAny(r,['tombol_link','button_link','btn_link','link']) || '#'
+    }));
+  }
+
+  function normalizeProducts(rows){
+  return (rows||[]).map((r,i)=>{
+    const tglStart = getAny(r,['tglpromostart','tgl_start','tanggalmulai']) || '';
+    const tglEnd   = getAny(r,['tglpromoend','tgl_end','tanggalselesai']) || '';
+    const jamStart = getAny(r,['jampromostart','jam_start','jammulai']) || '';
+    const jamEnd   = getAny(r,['jampromoend','jam_end','jamselesai']) || '';
+
+    let promostart='', promoend='';
+
+    if(tglStart && !tglEnd) {
+      promostart = `${tglStart} ${jamStart||'00:00'}`;
+      promoend   = `${tglStart} ${jamEnd||'23:59'}`;
+    } else if(!tglStart && !tglEnd) {
+      promostart = jamStart || '';
+      promoend   = jamEnd || '';
+    } else {
+      promostart = `${tglStart||''} ${jamStart||'00:00'}`.trim();
+      promoend   = `${tglEnd||tglStart||''} ${jamEnd||'23:59'}`.trim();
+    }
+
+    const rawStatus = String(getAny(r,['aktif','status','is_active'])).trim().toLowerCase();
+    // treat explicit 'no','n','false','0' as inactive, otherwise active (default yes)
+    const aktif = !(rawStatus === 'no' || rawStatus === 'n' || rawStatus === 'false' || rawStatus === '0');
+
+    return {
+      id: getAny(r,['id','ID','Id']) || 'p'+i,
+      nama: getAny(r,['namaproduk','nama produk','nama_produk','judul produk','judulproduk','produk','nama','name','productname','product_name']) || 'Produk',
+      gbr: getAny(r,['gbrproduk','gambar produk','gambar_produk','gbr','gambar','image','gbr image']),
+      alt: getAny(r,['altproduk','alt_produk','alt produk','alt','alt_text','alt_gambar','alt image']),
+      hargaawal: getAny(r,['hargaawal','harga awal','harga','price']),
+      hargadiskon: getAny(r,['hargadiskon','harga diskon','hargadisc','diskon']),
+      promostart,
+      promoend,
+      desc: getAny(r,['deskripsi','description','desc','keterangan','keterangan produk']) || '',
+      aktif: aktif
+    };
+  });
+}
+
+  function normalizeGallery(rows){
+    return (rows||[]).map(r=>({
+      url: getAny(r,['gambar_url','image','url','gambar','link']),
+      alt: getAny(r,['altgaleri','alt_gallery','alt','alt_text'])
+    }));
+  }
+
+  function normalizeTestis(rows){
+    return (rows||[]).map(r=>({
+      nama:getAny(r,['nama','name']),
+      jabatan:getAny(r,['jabatan','role']),
+      gambar:getAny(r,['gambar_url','gambar','image']), // prefer gambar_url
+      alt:getAny(r,['alt','alt_text','alt_gambar']) || getAny(r,['nama','name'])
+    }));
+  }
 
   function applySettings(s){
     if(!s) return;
@@ -640,6 +722,7 @@
     grid.appendChild(card);
   });
 }
+
 
   function renderGallery(){
     const g = $('#galleryGrid'); g.innerHTML = '';
@@ -920,7 +1003,7 @@
       <div>
         <h3>${judul}</h3>
         <p>${desc}</p>
-        <a href="/artikel.html?slug=${slug}" target="_blank" rel="noopener">Baca Selengkapnya</a>
+        <a href="/artikel.html?slug=${slug}">Baca Selengkapnya</a>
       </div>
     `;
     container.appendChild(card);
@@ -936,26 +1019,65 @@
   rows.sort((a,b)=>(b.views||0)-(a.views||0));
   rows.slice(0,3).forEach(r=>{
     const li = document.createElement('li');
-    li.innerHTML = `<a href="/artikel.html?slug=${r.slug}" target="_blank" rel="noopener" style="color:var(--accent)">${r.judul}</a>`;
+    li.innerHTML = `<a href="/artikel.html?slug=${r.slug}" style="color:var(--accent)">${r.judul}</a>`;
     list.appendChild(li);
   });
 }
+
   
   /* ====== INIT ====== */
   (async function init(){
-  showLoading(true);
-  try{
-    const all=await fetchAll();
-    SETTINGS=rowsToMap(all.Pengaturan||[]); applySettings(SETTINGS);
-    SLIDES=normalizeSlides(all.Slider); PRODUCTS=normalizeProducts(all.Produk);
-    GALLERY=normalizeGallery(all.Galeri); TESTIS=normalizeTestis(all.Testimoni);
-    renderHero();renderProducts();renderGallery();renderTesti();
-    await loadArticles(); await loadPopularArticles();
-    initSwipers(); setupUI();
-    setTimeout(()=>{$$('#productsGrid .card').forEach(el=>revealObserver.observe(el));},50);
-    updateCountdowns(); setInterval(updateCountdowns,1000);
-  }catch(e){console.error("init",e);}finally{showLoading(false);}
-})();
+    showLoading(true);
+    if(localStorage.getItem('dark')==='1') document.body.classList.add('dark');
+
+    try{
+      const settingsRows = await fetchSheet('Pengaturan').catch(()=>[]);
+      SETTINGS = rowsToMap(settingsRows);
+      applySettings(SETTINGS);
+
+      const [slidesRows, productsRows, galleryRows, testiRows] = await Promise.all([
+        fetchSheet('Slider').catch(()=>[]),
+        fetchSheet('Produk').catch(()=>[]),
+        fetchSheet('Galeri').catch(()=>[]),
+        fetchSheet('Testimoni').catch(()=>[])
+      ]);
+
+      SLIDES = normalizeSlides(slidesRows);
+      PRODUCTS = normalizeProducts(productsRows);
+      // Hilangkan produk yang tidak aktif (status = no)
+      PRODUCTS = PRODUCTS.filter(p => !!p.aktif);
+      GALLERY = normalizeGallery(galleryRows);
+      TESTIS = normalizeTestis(testiRows);
+
+      renderHero();
+      renderProducts();
+      renderGallery();
+      renderTesti();
+      await loadArticles();
+      await loadPopularArticles();
+
+      initSwipers();
+      setupUI();
+
+      // attach reveal observation to new elements
+      setTimeout(()=> {
+        $$('#productsGrid .card').forEach(el=> revealObserver.observe(el));
+        $$('#galleryGrid img').forEach(img=> revealObserver.observe(img));
+        $$('#testiGrid img').forEach(img=> revealObserver.observe(img));
+        $$('#slidesContainer img').forEach(img=> revealObserver.observe(img));
+      }, 50);
+
+      // Countdown loop (fixed)
+      updateCountdowns();
+      setInterval(updateCountdowns, 1000);
+
+    } catch(err){
+      console.error('Init error', err);
+      alert('Gagal muat data. Periksa API_URL/API_TOKEN & Apps Script deployment.');
+    } finally {
+      showLoading(false);
+    }
+  })();
 
     // -- Isi standar (bahasa Indonesia) --
     const LEGAL_TEXT = {
