@@ -409,10 +409,9 @@
   /* ========================= */
 
   const $ = (s, ctx=document) => ctx.querySelector(s);
-  //const $$ = (s, ctx=document) => Array.from((ctx||document).querySelectorAll(s));
+  const $$ = (s, ctx=document) => Array.from((ctx||document).querySelectorAll(s));
   const pad = n => String(n).padStart(2,'0');
-  function $$(sel){ return document.querySelectorAll(sel); }
-  function showLoading(show){ document.body.style.opacity = show?0.5:1; }
+  function showLoading(show=true){ $('#loadingOverlay')?.classList.toggle('show', !!show); }
   function formatRupiah(v){ if(v==null||v==='') return '-'; const n=Number(String(v).replace(/\D/g,'')); if(isNaN(n)) return v; return n.toLocaleString(LOCALE); }
   function safeParseJSON(t){ try{return JSON.parse(t);}catch(e){return null;} }
   async function safeFetch(url){ const res=await fetch(url,{cache:'no-cache'}); const txt=await res.text(); if(txt.trim().startsWith('<')) throw new Error('API returned HTML'); const j=safeParseJSON(txt); if(!j) throw new Error('Invalid JSON'); return j; }
@@ -545,19 +544,41 @@
   let cart = [];
   let heroSwiper, gallerySwiper, testiSwiper;
 
-  async function fetchAllData(){
-  try {
-    const cache = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
-    if(cache.time && (Date.now() - cache.time < CACHE_TTL)){
-      return cache.data;
-    }
-  } catch(e){}
-
-  const res = await fetch(`${API_URL}?sheet=all&token=${API_TOKEN}`, {cache:"no-cache"});
-  const parsed = await res.json();
-  localStorage.setItem(CACHE_KEY, JSON.stringify({time: Date.now(), data: parsed}));
-  return parsed;
-}
+  function readAllFromCache(){
+  try{
+  const raw = localStorage.getItem(CACHE_KEY_ALL);
+  if(!raw) return null;
+  const {ts, data} = JSON.parse(raw);
+  if(!ts || !data) return null;
+  if(Date.now() - ts > CACHE_TTL_MS) return null; // expired
+  return data;
+  }catch(e){ return null; }
+  }
+  
+  
+  function saveAllToCache(data){
+  try{ localStorage.setItem(CACHE_KEY_ALL, JSON.stringify({ts: Date.now(), data})); }catch(e){}
+  }
+    
+  async function fetchAll(){
+  const url = `${API_URL}?sheet=all&token=${encodeURIComponent(API_TOKEN)}`;
+  const res = await fetch(url, {cache:"no-cache"});
+  const j = await res.json();
+  if(j && !j.error) return j; // {Pengaturan, Slider, Produk, Galeri, Testimoni, Artikel}
+  throw new Error(j && j.error ? j.error : "Gagal memuat data");
+  }
+  
+  
+  async function getAllData(opts={}){
+  const force = !!opts.force;
+  if(!force){
+  const cached = readAllFromCache();
+  if(cached) return cached;
+  }
+  const data = await fetchAll();
+  saveAllToCache(data);
+  return data;
+  }
     
   function rowsToMap(rows){
     const m={};
@@ -680,17 +701,24 @@
      reveal observer, zoom, dan init loop dari file sebelumnya — mereka tetap sama. */
 
   // Karena pesan ini fokus pada perbaikan countdown, saya menyertakan fungsi updateCountdowns yang memakai getPromoStatus:
-  function renderHero(slides){
-  const c=document.getElementById("slidesContainer");
-  c.innerHTML="";
-  if(!slides.length){c.innerHTML="<p>Belum ada slider</p>";return;}
-  slides.forEach(s=>{
-    const div=document.createElement("div");
-    div.className="card";
-    div.innerHTML=`<img src="${s.gambar}" alt="${s.judul}" loading="lazy" decoding="async"><h3>${s.judul}</h3>`;
-    c.appendChild(div);
-  });
-}
+  function renderHero(){
+    const container = $('#slidesContainer');
+    container.innerHTML = '';
+    if(!SLIDES.length) SLIDES = [{bg:'https://images.unsplash.com/photo-1523986371872-9d3ba2e2f642?auto=format&fit=crop&w=1600&q=60', img:'https://img.icons8.com/emoji/96/egg-emoji.png', title:'Sabiq Bejo', caption:'Telur Asin Lamongan', btn_text:'Pesan', btn_link:'#products', alt:'Telur asin'}];
+    SLIDES.forEach(s=>{
+      const slide = document.createElement('div'); slide.className='swiper-slide';
+      if(s.bg) slide.style.backgroundImage = `url('${s.bg}')`;
+      slide.innerHTML = `<div class="slide-content">
+        ${s.img ? `<img src="${s.img}" alt="${escapeHtml(s.alt||s.title||'Slide')}" loading="lazy" decoding="async" data-zoom="1">` : ''}
+        <div class="slide-text">
+          <h2>${escapeHtml(s.title||'')}</h2>
+          ${s.caption ? `<p>${escapeHtml(s.caption)}</p>` : ''}
+          <a class="cta" href="${s.btn_link||'#'}">${escapeHtml(s.btn_text||'Lihat')}</a>
+        </div>
+      </div>`;
+      container.appendChild(slide);
+    });
+  }
 
   function renderProducts(){
   const grid = $('#productsGrid'); grid.innerHTML = '';
@@ -1003,38 +1031,44 @@
   function setZoom(v){ scale = Math.max(1, Math.min(6, v)); $('#zoomImg').style.setProperty('--scale', scale); }
   function setTranslate(x,y){ tx = x; ty = y; $('#zoomImg').style.setProperty('--tx', tx+'px'); $('#zoomImg').style.setProperty('--ty', y+'px'); }
 
-  async function loadArticles(all){
-  const rows = all.Artikel || [];
+  async function loadArticles(){
+  const rows = (window.ARTICLES || []).slice();
   const container = document.getElementById('blogList');
   container.innerHTML = '';
   if(!rows.length){ container.innerHTML = '<p>Belum ada artikel</p>'; return; }
-
+  
+  
+  // acak agar tampil bervariasi
   rows.sort(()=> Math.random()-0.5);
+  
+  
   rows.slice(0,6).forEach(r=>{
-    const judul = r.judul || 'Artikel';
-    const slug = r.slug || '#';
-    const desc = r.deskripsi || (r.isi ? r.isi.substring(0,100)+'…' : '');
-    const img = r.gambar || 'https://via.placeholder.com/300x200?text=Artikel';
-
-    const card = document.createElement('div');
-    card.className = 'blog-card';
-    card.innerHTML = `
-      <img src="${img}" alt="${judul}" loading="lazy" decoding="async">
-      <div>
-        <h3>${judul}</h3>
-        <p>${desc}</p>
-        <a href="/artikel.html?slug=${slug}" target="_blank" rel="noopener">Baca Selengkapnya</a>
-      </div>
-    `;
-    container.appendChild(card);
+  const judul = r.judul || 'Artikel';
+  const slug = r.slug || '#';
+  const desc = r.deskripsi || (r.isi ? (String(r.isi).substring(0,100)+'…') : '');
+  const img = r.gambar || 'https://via.placeholder.com/300x200?text=Artikel';
+  
+  
+  const card = document.createElement('div');
+  card.className = 'blog-card';
+  card.innerHTML = `
+  <img src="${img}" alt="${judul}" loading="lazy" decoding="async">
+  <div>
+  <h3>${judul}</h3>
+  <p>${desc}</p>
+  <a href="/artikel.html?slug=${slug}" target="_blank" rel="noopener">Baca →</a>
+  </div>
+  `;
+  container.appendChild(card);
   });
-}
-
-async function loadPopularArticles(all){
-  const rows = all.Artikel || [];
+  }
+  
+  async function loadPopularArticles(){
+  const rows = await fetchSheet('Artikel').catch(()=>[]);
   const list = document.getElementById('popularList');
   if(!rows.length){ list.innerHTML = '<li>Belum ada artikel</li>'; return; }
 
+  // ambil 3 artikel dengan views terbanyak (asumsi kolom "views")
   rows.sort((a,b)=>(b.views||0)-(a.views||0));
   rows.slice(0,3).forEach(r=>{
     const li = document.createElement('li');
@@ -1042,49 +1076,66 @@ async function loadPopularArticles(all){
     list.appendChild(li);
   });
 }
-  
-  /* ====== INIT ====== */
+
+  // ====== INIT ======
   (async function init(){
   showLoading(true);
-  try {
-    const all = await fetchAllData(); // ambil semua sekali saja
-
-    // gunakan data sesuai sheet
-    const SLIDES   = normalizeSlides(all.Slider || []);
-    const PRODUCTS = normalizeProducts(all.Produk || []).filter(p => !!p.aktif);
-    const GALLERY  = normalizeGallery(all.Galeri || []);
-    const TESTIS   = normalizeTestis(all.Testimoni || []);
-    const ARTICLES = all.ARTIKEL || [];
-
-    renderHero(SLIDES);
-    renderProducts(PRODUCTS);
-    renderGallery(GALLERY);
-    renderTesti(TESTIS);
-    renderArticles(ARTICLES);
-    renderPopular(ARTICLES);
-    //await loadArticles(all);
-    //await loadPopularArticles(all);
-
-    initSwipers();
-    setupUI();
-
-    setTimeout(()=> {
-      $$('#productsGrid .card').forEach(el=> revealObserver.observe(el));
-      $$('#galleryGrid img').forEach(img=> revealObserver.observe(img));
-      $$('#testiGrid img').forEach(img=> revealObserver.observe(img));
-      $$('#slidesContainer img').forEach(img=> revealObserver.observe(img));
-    }, 50);
-
-    updateCountdowns();
-    setInterval(updateCountdowns, 1000);
-
+  if(localStorage.getItem('dark')==='1') document.body.classList.add('dark');
+  
+  
+  try{
+  // force refresh jika URL mengandung ?refresh=1
+  const force = /(^|[?&])refresh=1(&|$)/.test(location.search);
+  
+  
+  const ALL = await getAllData({force});
+  
+  
+  // mapping ke variabel lama (ID & fungsi render tetap sama)
+  const settingsRows = ALL.Pengaturan || [];
+  SETTINGS = rowsToMap(settingsRows);
+  applySettings(SETTINGS);
+  
+  
+  SLIDES = normalizeSlides(ALL.Slider || []);
+  PRODUCTS = normalizeProducts(ALL.Produk || []);
+  PRODUCTS = PRODUCTS.filter(p => !!p.aktif); // hanya yang aktif
+  GALLERY = normalizeGallery(ALL.Galeri || []);
+  TESTIS = normalizeTestis(ALL.Testimoni || []);
+  window.ARTICLES = (ALL.Artikel || []); // simpan global agar fungsi artikel bisa pakai
+  
+  
+  renderHero();
+  renderProducts();
+  renderGallery();
+  renderTesti();
+  await loadArticles();
+  await loadPopularArticles();
+  
+  
+  initSwipers();
+  setupUI();
+  
+  
+  setTimeout(()=>{
+  $$('#productsGrid .card').forEach(el=> revealObserver.observe(el));
+  $$('#galleryGrid img').forEach(img=> revealObserver.observe(img));
+  $$('#testiGrid img').forEach(img=> revealObserver.observe(img));
+  $$('#slidesContainer img').forEach(img=> revealObserver.observe(img));
+  }, 50);
+  
+  
+  updateCountdowns();
+  setInterval(updateCountdowns, 1000);
+  
+  
   } catch(err){
-    console.error('Init error', err);
-    alert('Gagal muat data. Periksa API_URL/API_TOKEN & Apps Script deployment.');
+  console.error('Init error', err);
+  alert('Gagal muat data. Periksa API_URL/API_TOKEN & Apps Script deployment.');
   } finally {
-    showLoading(false);
+  showLoading(false);
   }
-})();
+  })();
 
     // -- Isi standar (bahasa Indonesia) --
     const LEGAL_TEXT = {
