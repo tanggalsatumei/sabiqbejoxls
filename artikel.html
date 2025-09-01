@@ -32,7 +32,7 @@
     <article>
       <h1 id="judul">Memuat...</h1>
       <div id="meta"></div>
-      <img id="gambar" src="" alt="" style="display:none">
+      <img id="gambar" src="" alt="" style="display:none" loading="lazy" decoding="async">
       <div id="isi">Sedang mengambil artikel...</div>
     </article>
 
@@ -49,30 +49,37 @@
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbw7z-KG3qwpi8-AkrMPGg2ONX_gWwepiN7oKPiAcx6n_fVBjASLZ79IMxsuV99tUisCwg/exec";
 const API_TOKEN = "1_sE-EY0hPXT_mQBg7sifRUoDAon6DvQNQZcUsrwnD0A";
+const CACHE_KEY = "sabiq_cache_all";
+const CACHE_TTL = 5 * 60 * 1000; // 5 menit
 
 function getQueryParam(name){
   const url = new URL(window.location.href);
   return url.searchParams.get(name);
 }
 
-async function fetchSheet(sheet){
+async function fetchAllData(){
+  // cek cache
   try {
-    const res = await fetch(`${API_URL}?sheet=${encodeURIComponent(sheet)}&token=${API_TOKEN}`, {cache:"no-cache"});
-    const txt = await res.text();
-    const parsed = JSON.parse(txt);
-    return parsed.data || [];
-  } catch(e) {
-    console.error("Gagal fetch sheet", e);
-    return [];
-  }
+    const cache = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
+    if(cache.time && (Date.now() - cache.time < CACHE_TTL)){
+      return cache.data;
+    }
+  } catch(e){}
+
+  // fetch baru
+  const res = await fetch(`${API_URL}?sheet=all&token=${API_TOKEN}`, {cache:"no-cache"});
+  const parsed = await res.json();
+  localStorage.setItem(CACHE_KEY, JSON.stringify({time: Date.now(), data: parsed}));
+  return parsed;
 }
 
 async function loadArticle(){
   const slug = (getQueryParam("slug")||"").trim().toLowerCase();
   if(!slug){ document.getElementById("isi").innerText = "Slug artikel tidak ditemukan."; return; }
 
-  const rows = await fetchSheet("Artikel");
-  const artikel = rows.find(r => ((r.slug||"").trim().toLowerCase() === slug));
+  const all = await fetchAllData();
+  const rows = all.Artikel || [];
+  const artikel = rows.find(r => (String(r.slug||"").trim().toLowerCase() === slug));
 
   if(!artikel){
     document.getElementById("judul").innerText = "Artikel tidak ditemukan";
@@ -94,14 +101,13 @@ async function loadArticle(){
 
   document.getElementById("isi").innerHTML = artikel.isi || artikel.deskripsi || "Belum ada konten.";
 
-  loadRelated(slug);
+  loadRelated(slug, rows);
 }
 
-async function loadRelated(currentSlug){
-  const rows = await fetchSheet("Artikel");
+function loadRelated(currentSlug, rows){
   const list = document.getElementById("relatedList");
   list.innerHTML = "";
-  rows.filter(r => (r.slug||"").trim().toLowerCase() !== currentSlug)
+  rows.filter(r => (String(r.slug||"").trim().toLowerCase() !== currentSlug))
       .slice(0,5).forEach(r=>{
     const li = document.createElement("li");
     li.innerHTML = `<a href="/artikel.html?slug=${r.slug}" target="_blank">${r.judul}</a>`;
