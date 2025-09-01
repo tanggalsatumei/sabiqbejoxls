@@ -1064,18 +1064,27 @@
   }
   
   async function loadPopularArticles(){
-  const rows = await fetchSheet('Artikel').catch(()=>[]);
+  const rows = (window.ARTICLES || []).slice();
   const list = document.getElementById('popularList');
-  if(!rows.length){ list.innerHTML = '<li>Belum ada artikel</li>'; return; }
 
-  // ambil 3 artikel dengan views terbanyak (asumsi kolom "views")
-  rows.sort((a,b)=>(b.views||0)-(a.views||0));
-  rows.slice(0,3).forEach(r=>{
+  if(!rows.length){
+    list.innerHTML = '<li>Belum ada artikel</li>';
+    return;
+  }
+
+  // acak urutan supaya tidak monoton
+  rows.sort(() => Math.random() - 0.5);
+
+  list.innerHTML = '';
+  rows.slice(0,6).forEach(r => {
     const li = document.createElement('li');
-    li.innerHTML = `<a href="/artikel.html?slug=${r.slug}" target="_blank" rel="noopener" style="color:var(--accent)">${r.judul}</a>`;
+    const judul = r.judul || 'Artikel';
+    const slug  = r.slug  || '#';
+    li.innerHTML = `<a href="/artikel.html?slug=${slug}" target="_blank" rel="noopener" style="color:var(--accent)">${judul}</a>`;
     list.appendChild(li);
   });
 }
+
 
   // ====== INIT ======
   (async function init(){
