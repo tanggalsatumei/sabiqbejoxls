@@ -1139,9 +1139,10 @@
   
   
   } catch(err){
-  console.error('Init error', err);
-  alert('Gagal muat data. Periksa API_URL/API_TOKEN & Apps Script deployment.');
-  } finally {
+  console.error('Init error >>>', err, err.stack);
+  alert('Init gagal: ' + (err && err.message ? err.message : err));
+}
+ finally {
   showLoading(false);
   }
   })();
