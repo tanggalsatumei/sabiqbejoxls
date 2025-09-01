@@ -259,6 +259,7 @@
         <h3 id="footer-title">CV. Sabiq Bejo</h3>
         <p id="footer-desc">Produsen Telur Asin & Olahan dari Lamongan.</p>
         <p><strong>Alamat:</strong> <span id="footer-address">-</span></p>
+        <p><strong>Hari Buka:</strong> <span id="footer-days">-</span></p>
         <p><strong>Jam Buka:</strong> <span id="footer-hours">-</span></p>
         <p><strong>Kontak:</strong> <a id="footer-wa" href="#" target="_blank" rel="noopener">WhatsApp</a></p>
         <!-- di footer, tambahkan baris link -->
@@ -585,7 +586,8 @@
       $('#footer-wa').textContent = s.wa;
     }
     if(s.alamat) $('#footer-address').textContent = s.alamat;
-    if(s['jam buka']) $('#footer-hours').textContent = s['jam buka'];
+    if(s['hari_buka']) $('#footer-days').textContent = s['hari_buka'];
+    if(s['jam_buka']) $('#footer-hours').textContent = s['jam_buka'];
     if(s.deskripsi) $('#footer-desc').textContent = s.deskripsi;
 
     if(s.maps){
