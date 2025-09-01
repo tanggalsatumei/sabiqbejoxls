@@ -1,119 +1,175 @@
 <!doctype html>
 <html lang="id">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Artikel | Sabiq Bejo</title>
-  <link rel="icon" href="https://img.icons8.com/emoji/48/egg-emoji.png" type="image/png">
-  <style>
-    body {font-family: Arial, sans-serif; margin:0; padding:20px; line-height:1.6; background:#fafafa; color:#222;}
-    header {margin-bottom:20px;}
-    h1 {font-size:1.8rem; margin-bottom:12px;}
-    #meta {font-size:0.9rem; color:#666; margin-bottom:20px;}
-    img {max-width:100%; border-radius:8px; margin:12px 0;}
-    .container {max-width: 800px; margin:auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.08);}
-    a {color:#d19e00;}
-    footer {margin-top:40px; text-align:center; font-size:0.85rem; color:#777;}
-    nav.breadcrumb {font-size:0.9rem; margin-bottom:15px; color:#999;}
-    nav.breadcrumb a {color:#d19e00; text-decoration:none;}
-    #related h3 {margin-top:40px;}
-    #related ul {padding-left:18px; line-height:1.6;}
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Artikel | Sabiq Bejo</title>
+<link rel="icon" href="https://img.icons8.com/emoji/48/egg-emoji.png" type="image/png">
+<style>
+body {font-family: Arial, sans-serif; margin:0; padding:20px; line-height:1.6; background:#fafafa; color:#222;}
+header {margin-bottom:20px;}
+h1 {font-size:1.8rem; margin-bottom:12px;}
+#meta {font-size:0.9rem; color:#666; margin-bottom:20px;}
+img {max-width:100%; border-radius:8px; margin:12px 0;}
+.container {max-width: 800px; margin:auto; background:#fff; padding:18px 20px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+a {color:#d19e00;}
+footer {margin-top:40px; text-align:center; font-size:0.85rem; color:#777;}
+nav.breadcrumb {font-size:0.9rem; margin-bottom:15px; color:#999;}
+nav.breadcrumb a {color:#d19e00; text-decoration:none;}
+#related h3 {margin-top:40px;}
+#related ul {padding-left:18px; line-height:1.6;}
+</style>
 </head>
 <body>
   <div class="container">
-    <header>
-      <nav class="breadcrumb">
-        <a href="/">Beranda</a> › <a href="/#blog">Artikel</a> › <span id="crumb-judul">Judul</span>
-      </nav>
-      <a href="/" style="text-decoration:none;color:#d19e00;font-weight:bold">← Kembali</a>
-    </header>
+<header>
+<nav class="breadcrumb">
+<a href="/">Beranda</a> › <a href="/#blog">Artikel</a> › <span id="crumb-judul">Judul</span>
+</nav>
+<a href="/" style="text-decoration:none;color:#d19e00;font-weight:bold">← Kembali</a>
+</header>
 
-    <article>
-      <h1 id="judul">Memuat...</h1>
-      <div id="meta"></div>
-      <img id="gambar" src="" alt="" style="display:none" loading="lazy" decoding="async">
-      <div id="isi">Sedang mengambil artikel...</div>
-    </article>
 
-    <section id="related">
-      <h3>Artikel Lainnya</h3>
-      <ul id="relatedList"><li>Sedang memuat...</li></ul>
-    </section>
-  </div>
+<article>
+<h1 id="judul">Memuat...</h1>
+<div id="meta"></div>
+<img id="gambar" src="" alt="" style="display:none" loading="lazy" decoding="async">
+<div id="isi">Sedang mengambil artikel...</div>
+</article>
 
-  <footer>
-    &copy; <span id="year"></span> CV. Sabiq Bejo
-  </footer>
 
+<section id="related">
+<h3>Artikel Lainnya</h3>
+<ul id="relatedList"><li>Sedang memuat...</li></ul>
+</section>
+
+
+<footer>
+<p>© <span id="year"></span> Sabiq Bejo</p>
+</footer>
+</div>
 <script>
+// === KONFIG ===
 const API_URL = "https://script.google.com/macros/s/AKfycbw7z-KG3qwpi8-AkrMPGg2ONX_gWwepiN7oKPiAcx6n_fVBjASLZ79IMxsuV99tUisCwg/exec";
 const API_TOKEN = "1_sE-EY0hPXT_mQBg7sifRUoDAon6DvQNQZcUsrwnD0A";
-const CACHE_KEY = "sabiq_cache_all";
-const CACHE_TTL = 5 * 60 * 1000; // 5 menit
 
+
+// === UTIL ===
 function getQueryParam(name){
-  const url = new URL(window.location.href);
-  return url.searchParams.get(name);
+const url = new URL(window.location.href);
+return url.searchParams.get(name);
 }
 
-async function fetchAllData(){
-  // cek cache
-  try {
-    const cache = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
-    if(cache.time && (Date.now() - cache.time < CACHE_TTL)){
-      return cache.data;
-    }
-  } catch(e){}
 
-  // fetch baru
-  const res = await fetch(`${API_URL}?sheet=all&token=${API_TOKEN}`, {cache:"no-cache"});
-  const parsed = await res.json();
-  localStorage.setItem(CACHE_KEY, JSON.stringify({time: Date.now(), data: parsed}));
-  return parsed;
+// === CACHING: ambil semua sheet sekaligus ===
+const CACHE_KEY_ALL = "SBQ_ALL_CACHE_v1";
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 menit
+
+
+function readAllFromCache(){
+try{
+const raw = localStorage.getItem(CACHE_KEY_ALL);
+if(!raw) return null;
+const {ts, data} = JSON.parse(raw);
+if(!ts || !data) return null;
+if(Date.now() - ts > CACHE_TTL_MS) return null; // expired
+return data;
+}catch(e){ return null; }
+}
+  function saveAllToCache(data){
+try{ localStorage.setItem(CACHE_KEY_ALL, JSON.stringify({ts: Date.now(), data})); }catch(e){}
 }
 
+
+async function fetchAll(){
+const res = await fetch(`${API_URL}?sheet=all&token=${API_TOKEN}`, {cache: "no-cache"});
+const json = await res.json();
+if(json && !json.error) return json; // {Pengaturan:[], Slider:[], Produk:[], Galeri:[], Testimoni:[], Artikel:[]}
+throw new Error(json && json.error ? json.error : "Gagal memuat data");
+}
+
+
+async function getAllData(){
+// 1) coba cache dulu
+const cached = readAllFromCache();
+if(cached) return cached;
+// 2) fetch ke API
+const data = await fetchAll();
+saveAllToCache(data);
+return data;
+}
+  // === RENDER DETAIL ARTIKEL ===
 async function loadArticle(){
-  const slug = (getQueryParam("slug")||"").trim().toLowerCase();
-  if(!slug){ document.getElementById("isi").innerText = "Slug artikel tidak ditemukan."; return; }
-
-  const all = await fetchAllData();
-  const rows = all.Artikel || [];
-  const artikel = rows.find(r => (String(r.slug||"").trim().toLowerCase() === slug));
-
-  if(!artikel){
-    document.getElementById("judul").innerText = "Artikel tidak ditemukan";
-    document.getElementById("isi").innerText = "Maaf, artikel dengan slug '"+slug+"' tidak tersedia.";
-    return;
-  }
-
-  document.title = artikel.judul + " | Sabiq Bejo";
-  document.getElementById("judul").innerText = artikel.judul || "Artikel";
-  document.getElementById("crumb-judul").innerText = artikel.judul || "Artikel";
-  document.getElementById("meta").innerText = artikel.tanggal ? `Dipublikasikan pada ${artikel.tanggal}` : "";
-  
-  if(artikel.gambar){
-    const img = document.getElementById("gambar");
-    img.src = artikel.gambar;
-    img.alt = artikel.judul || "";
-    img.style.display = "block";
-  }
-
-  document.getElementById("isi").innerHTML = artikel.isi || artikel.deskripsi || "Belum ada konten.";
-
-  loadRelated(slug, rows);
+const slug = (getQueryParam("slug")||"").trim().toLowerCase();
+if(!slug){
+document.getElementById("isi").innerText = "Slug artikel tidak ditemukan.";
+return;
 }
 
-function loadRelated(currentSlug, rows){
-  const list = document.getElementById("relatedList");
-  list.innerHTML = "";
-  rows.filter(r => (String(r.slug||"").trim().toLowerCase() !== currentSlug))
-      .slice(0,5).forEach(r=>{
-    const li = document.createElement("li");
-    li.innerHTML = `<a href="/artikel.html?slug=${r.slug}" target="_blank">${r.judul}</a>`;
-    list.appendChild(li);
-  });
+
+let all;
+try{ all = await getAllData(); }catch(e){ all = null; }
+
+
+const rows = (all && all.Artikel) ? all.Artikel : [];
+
+
+// fallback keras kalau all tidak tersedia (misal Apps Script lama)
+if(!rows.length){
+try {
+const res = await fetch(`${API_URL}?sheet=Artikel&token=${API_TOKEN}`, {cache:"no-cache"});
+const txt = await res.text();
+const parsed = JSON.parse(txt);
+// Apps Script Anda mengembalikan ARRAY langsung, bukan {data:[]}
+rows.push(...(Array.isArray(parsed) ? parsed : (parsed.data || [])));
+} catch(err){}
 }
+
+
+const artikel = rows.find(r => ((String(r.slug||"").trim().toLowerCase()) === slug));
+
+
+if(!artikel){
+document.getElementById("judul").innerText = "Artikel tidak ditemukan";
+document.getElementById("isi").innerText = `Maaf, artikel dengan slug '${slug}' tidak tersedia.`;
+return;
+}
+  // Render
+document.getElementById("judul").innerText = artikel.judul || "(Tanpa Judul)";
+document.getElementById("crumb-judul").innerText = artikel.judul || "(Tanpa Judul)";
+
+
+const metaBits = [];
+if(artikel.penulis) metaBits.push(`✍️ ${artikel.penulis}`);
+if(artikel.tanggal) metaBits.push(`🗓️ ${artikel.tanggal}`);
+document.getElementById("meta").innerText = metaBits.join(" · ");
+
+
+if(artikel.gambar){
+const img = document.getElementById("gambar");
+img.src = artikel.gambar;
+img.alt = artikel.judul || "Gambar artikel";
+img.style.display = "block";
+img.loading = "lazy";
+img.decoding = "async";
+}
+
+
+// Isi mendukung HTML dasar dari spreadsheet
+document.getElementById("isi").innerHTML = artikel.isi || artikel.deskripsi || "(Belum ada konten)";
+  // Related
+const currentSlug = slug;
+const list = document.getElementById("relatedList");
+list.innerHTML = "";
+rows.filter(r => (String(r.slug||"").trim().toLowerCase() !== currentSlug))
+.slice(0,5)
+.forEach(r=>{
+const li = document.createElement("li");
+li.innerHTML = `<a href="/artikel.html?slug=${r.slug}" target="_blank" rel="noopener">${r.judul||"Artikel"}</a>`;
+list.appendChild(li);
+});
+}
+
 
 document.getElementById("year").innerText = new Date().getFullYear();
 loadArticle();
