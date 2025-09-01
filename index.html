@@ -404,6 +404,8 @@
   const API_TOKEN = "1_sE-EY0hPXT_mQBg7sifRUoDAon6DvQNQZcUsrwnD0A";
   const LOCALE = "id-ID";
   const TZONE = 'Asia/Jakarta'; // zona yang dipakai untuk waktu jam-only
+  const CACHE_KEY = "sabiq_cache_all";
+  const CACHE_TTL = 5 * 60 * 1000; // 5 menit
   /* ========================= */
 
   const $ = (s, ctx=document) => ctx.querySelector(s);
@@ -542,13 +544,19 @@
   let cart = [];
   let heroSwiper, gallerySwiper, testiSwiper;
 
-  async function fetchSheet(name){
-    const url = `${API_URL}?sheet=${encodeURIComponent(name)}&token=${encodeURIComponent(API_TOKEN)}`;
-    const j = await safeFetch(url);
-    if(j.status === 'success') return j.data || [];
-    if(Array.isArray(j)) return j;
-    return [];
-  }
+  async function fetchAllData(){
+  try {
+    const cache = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
+    if(cache.time && (Date.now() - cache.time < CACHE_TTL)){
+      return cache.data;
+    }
+  } catch(e){}
+
+  const res = await fetch(`${API_URL}?sheet=all&token=${API_TOKEN}`, {cache:"no-cache"});
+  const parsed = await res.json();
+  localStorage.setItem(CACHE_KEY, JSON.stringify({time: Date.now(), data: parsed}));
+  return parsed;
+}
   function rowsToMap(rows){
     const m={};
     (rows||[]).forEach(r=>{
@@ -1000,15 +1008,13 @@
   function setZoom(v){ scale = Math.max(1, Math.min(6, v)); $('#zoomImg').style.setProperty('--scale', scale); }
   function setTranslate(x,y){ tx = x; ty = y; $('#zoomImg').style.setProperty('--tx', tx+'px'); $('#zoomImg').style.setProperty('--ty', y+'px'); }
 
-  async function loadArticles(){
-  const rows = await fetchSheet('Artikel').catch(()=>[]);
+  async function loadArticles(all){
+  const rows = all.Artikel || [];
   const container = document.getElementById('blogList');
   container.innerHTML = '';
   if(!rows.length){ container.innerHTML = '<p>Belum ada artikel</p>'; return; }
 
-  // acak artikel
   rows.sort(()=> Math.random()-0.5);
-
   rows.slice(0,6).forEach(r=>{
     const judul = r.judul || 'Artikel';
     const slug = r.slug || '#';
@@ -1018,7 +1024,7 @@
     const card = document.createElement('div');
     card.className = 'blog-card';
     card.innerHTML = `
-      <img src="${img}" alt="${judul}">
+      <img src="${img}" alt="${judul}" loading="lazy" decoding="async">
       <div>
         <h3>${judul}</h3>
         <p>${desc}</p>
@@ -1028,13 +1034,12 @@
     container.appendChild(card);
   });
 }
-  
-  async function loadPopularArticles(){
-  const rows = await fetchSheet('Artikel').catch(()=>[]);
+
+async function loadPopularArticles(all){
+  const rows = all.Artikel || [];
   const list = document.getElementById('popularList');
   if(!rows.length){ list.innerHTML = '<li>Belum ada artikel</li>'; return; }
 
-  // ambil 3 artikel dengan views terbanyak (asumsi kolom "views")
   rows.sort((a,b)=>(b.views||0)-(a.views||0));
   rows.slice(0,3).forEach(r=>{
     const li = document.createElement('li');
@@ -1045,57 +1050,45 @@
   
   /* ====== INIT ====== */
   (async function init(){
-    showLoading(true);
-    if(localStorage.getItem('dark')==='1') document.body.classList.add('dark');
+  showLoading(true);
+  try {
+    const all = await fetchAllData();
 
-    try{
-      const settingsRows = await fetchSheet('Pengaturan').catch(()=>[]);
-      SETTINGS = rowsToMap(settingsRows);
-      applySettings(SETTINGS);
+    // isi Pengaturan, Slider, Produk, dll → sama seperti sebelumnya
+    // contoh:
+    SLIDES = normalizeSlides(all.Slider||[]);
+    PRODUCTS = normalizeProducts(all.Produk||[]);
+    PRODUCTS = PRODUCTS.filter(p => !!p.aktif);
+    GALLERY = normalizeGallery(all.Galeri||[]);
+    TESTIS = normalizeTestis(all.Testimoni||[]);
 
-      const [slidesRows, productsRows, galleryRows, testiRows] = await Promise.all([
-        fetchSheet('Slider').catch(()=>[]),
-        fetchSheet('Produk').catch(()=>[]),
-        fetchSheet('Galeri').catch(()=>[]),
-        fetchSheet('Testimoni').catch(()=>[])
-      ]);
+    renderHero();
+    renderProducts();
+    renderGallery();
+    renderTesti();
+    await loadArticles(all);
+    await loadPopularArticles(all);
 
-      SLIDES = normalizeSlides(slidesRows);
-      PRODUCTS = normalizeProducts(productsRows);
-      // Hilangkan produk yang tidak aktif (status = no)
-      PRODUCTS = PRODUCTS.filter(p => !!p.aktif);
-      GALLERY = normalizeGallery(galleryRows);
-      TESTIS = normalizeTestis(testiRows);
+    initSwipers();
+    setupUI();
 
-      renderHero();
-      renderProducts();
-      renderGallery();
-      renderTesti();
-      await loadArticles();
-      await loadPopularArticles();
+    setTimeout(()=> {
+      $$('#productsGrid .card').forEach(el=> revealObserver.observe(el));
+      $$('#galleryGrid img').forEach(img=> revealObserver.observe(img));
+      $$('#testiGrid img').forEach(img=> revealObserver.observe(img));
+      $$('#slidesContainer img').forEach(img=> revealObserver.observe(img));
+    }, 50);
 
-      initSwipers();
-      setupUI();
+    updateCountdowns();
+    setInterval(updateCountdowns, 1000);
 
-      // attach reveal observation to new elements
-      setTimeout(()=> {
-        $$('#productsGrid .card').forEach(el=> revealObserver.observe(el));
-        $$('#galleryGrid img').forEach(img=> revealObserver.observe(img));
-        $$('#testiGrid img').forEach(img=> revealObserver.observe(img));
-        $$('#slidesContainer img').forEach(img=> revealObserver.observe(img));
-      }, 50);
-
-      // Countdown loop (fixed)
-      updateCountdowns();
-      setInterval(updateCountdowns, 1000);
-
-    } catch(err){
-      console.error('Init error', err);
-      alert('Gagal muat data. Periksa API_URL/API_TOKEN & Apps Script deployment.');
-    } finally {
-      showLoading(false);
-    }
-  })();
+  } catch(err){
+    console.error('Init error', err);
+    alert('Gagal muat data. Periksa API_URL/API_TOKEN & Apps Script deployment.');
+  } finally {
+    showLoading(false);
+  }
+})();
 
     // -- Isi standar (bahasa Indonesia) --
     const LEGAL_TEXT = {
